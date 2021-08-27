@@ -1,0 +1,25 @@
+:toc: auto
+
+# Bill Title API
+
+## Overview
+
+This repository provides an http service to get bills, titles and bills related by title (using FastAPI); This API is used to retrieve, create, update, and delete bills and titles. It is built on the self-documenting FastAPI in Python.
+
+## Usage 
+
+* Clone this repository with `git`
+* Install Python > 3.7 (preferably with pyenv)
+* Install dependencies, including FastAPI and the uvicorn server (pip install -r requirements.txt)
+* Use Git lfs to download the billtitles.db file (~ 120MB) into the top level directory of the repository
+* Run the server with `uvicorn billtitles.main:app --reload`
+
+This will provide an API to query for bills and titles; (soon) to query similar bills by title; and to create, update, and delete bills and titles.
+
+To see the documentation of the API, run `uvicorn billtitles.main:app --reload` and go to `http://localhost:8000/docs`
+
+## See Also
+
+See also the `github.com/aih/bills` and `github.com/aih/billtitles` repositories in Go.
+
+The `github.com/aih/bills` repository provides a Go module to process bills that were downloaded using the unitedstates/congress scrapers. The `github.com/aih/billtitles` repository is another Go module that converts the json output from `bills` into sqlite3. It also provides a (crude) Go API to query for bills and titles.
