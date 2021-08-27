@@ -31,7 +31,7 @@ def create_bill(bill: models.Bill, db: Session = Depends(get_db)):
     return crud.create_bill(db=db, bill=bill)
 
 
-@app.get("/bills/", response_model=List[models.Bill])
+@app.get("/bills/", response_model=List[models.BillAndTitle])
 def read_bills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     bills = crud.get_bills(db, skip=skip, limit=limit)
     return bills
@@ -39,7 +39,7 @@ def read_bills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 
 # TODO: The current database does not have any billnumberversions other than ih
 # In the future, we can store these separately in the db and retrieve by billnumber or billnumberversion
-@app.get("/bills/{billnumber}", response_model=List[models.Bill])
+@app.get("/bills/{billnumber}", response_model=List[models.BillAndTitle])
 def read_bill(billnumber: str, db: Session = Depends(get_db)):
     db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
