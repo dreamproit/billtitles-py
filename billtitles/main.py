@@ -36,7 +36,9 @@ def read_bills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return bills
 
 
-@app.get("/bills/{billnumber}", response_model=schemas.Bill)
+# TODO: The current database does not have any billnumberversions other than ih
+# In the future, we can store these separately in the db and retrieve by billnumber or billnumberversion
+@app.get("/bills/{billnumber}", response_model=List[schemas.Bill])
 def read_bill(billnumber: str, db: Session = Depends(get_db)):
     db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
@@ -55,7 +57,7 @@ def read_bill_id(bill_id: int, db: Session = Depends(get_db)):
 def create_title_for_bill(
     bill_id: int, title: schemas.TitleCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_bill_title(db=db, title=title, bill_id=bill_id)
+    return crud.create_bill_title(db=db, titlec=title, title=title)
 
 
 @app.get("/titles/", response_model=List[schemas.Title])

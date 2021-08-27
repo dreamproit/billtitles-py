@@ -8,16 +8,18 @@ def get_bill(db: Session, bill_id: int):
 
 
 def get_bill_by_billnumber(db: Session, billnumber: str):
-    return db.query(models.Bill).filter(models.Bill.billnumber == billnumber).first()
+    return db.query(models.Bill).filter(models.Bill.billnumber == billnumber).all()
+   # .first()
 
 
 def get_bills(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Bill).offset(skip).limit(limit).all()
 
 
+# TODO: document how to use this and whether it's working
+# In particular, look at adding the titles 
 def create_bill(db: Session, bill: schemas.BillCreate):
-    fake_hashed_password = bill.password + "notreallyhashed"
-    db_bill = models.Bill(email=bill.email, hashed_password=fake_hashed_password)
+    db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion,)
     db.add(db_bill)
     db.commit()
     db.refresh(db_bill)
@@ -27,9 +29,10 @@ def create_bill(db: Session, bill: schemas.BillCreate):
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Title).offset(skip).limit(limit).all()
 
-
-def create_bill_title(db: Session, titlec: schemas.TitleCreate, title: str):
-    db_title = models.Title(**titlec.dict(), title=title)
+# TODO: document how to use this and whether it's working
+# In particular, look at adding the bills
+def create_bill_title(db: Session, title: schemas.TitleCreate):
+    db_title = models.Title(**title.dict())
     db.add(db_title)
     db.commit()
     db.refresh(db_title)
