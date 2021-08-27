@@ -8,6 +8,8 @@ from .database import SessionLocal, engine
 
 models.Base.metadata.create_all(bind=engine)
 
+# Run in uvicorn with:
+# uvicorn billtitles.main:app --reload
 app = FastAPI()
 
 
