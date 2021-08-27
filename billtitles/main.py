@@ -43,12 +43,12 @@ def read_bill(billnumber: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
     return db_bill
 
-#@app.get("/bills/{bill_id}", response_model=schemas.Bill)
-#def read_bill(bill_id: int, db: Session = Depends(get_db)):
-#    db_bill = crud.get_bill(db, bill_id=bill_id)
-#    if db_bill is None:
-#        raise HTTPException(status_code=404, detail="Bill not found")
-#    return db_bill
+@app.get("/billid/{bill_id}", response_model=schemas.Bill)
+def read_bill_id(bill_id: int, db: Session = Depends(get_db)):
+    db_bill = crud.get_bill(db, bill_id=bill_id)
+    if db_bill is None:
+        raise HTTPException(status_code=404, detail="Bill not found")
+    return db_bill
 
 
 @app.post("/bills/{bill_id}/titles/", response_model=schemas.Title)
