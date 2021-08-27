@@ -33,8 +33,8 @@ def get_title(db: Session, title_id: int = None, title: str = None):
     if title:
         title=title.strip("\"'")
 
-    titles = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()
-    titles_whole = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()
+    titles = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()
+    titles_whole = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()
     return {'titles': titles, 'titles_whole': titles_whole} 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
