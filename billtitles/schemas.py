@@ -23,7 +23,7 @@ class TitleCreate(TitleBase):
 
 class Title(TitleBase):
     id: int
-    owner_id: int
+    title: str 
 
     class Config:
         orm_mode = True

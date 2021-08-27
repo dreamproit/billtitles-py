@@ -28,8 +28,8 @@ def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Title).offset(skip).limit(limit).all()
 
 
-def create_bill_title(db: Session, title: schemas.TitleCreate, bill_id: int):
-    db_title = models.Title(**title.dict(), owner_id=bill_id)
+def create_bill_title(db: Session, titlec: schemas.TitleCreate, title: str):
+    db_title = models.Title(**titlec.dict(), title=title)
     db.add(db_title)
     db.commit()
     db.refresh(db_title)

@@ -40,7 +40,7 @@ def read_bills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 def read_bill(billnumber: str, db: Session = Depends(get_db)):
     db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
-        raise HTTPException(status_code=404, detail="Bill not found")
+        raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
     return db_bill
 
 #@app.get("/bills/{bill_id}", response_model=schemas.Bill)
