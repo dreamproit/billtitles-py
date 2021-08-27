@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from datetime import datetime
 
 from . import models
 
@@ -19,7 +20,7 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 # TODO: document how to use this and whether it's working
 # In particular, look at adding the titles 
 def create_bill(db: Session, bill: models.Bill):
-    db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion,)
+    db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion, created_at=datetime.now(), updated_at=datetime.now())
     db.add(db_bill)
     db.commit()
     db.refresh(db_bill)

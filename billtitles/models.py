@@ -5,19 +5,19 @@ from sqlmodel import Field, SQLModel, Relationship
 class BillTitleLink(SQLModel, table=True):
     __tablename__ = "bill_titles"
     bill_id: Optional[int] = Field(
-        default=None, foreign_key="bill.id", primary_key=True
+        default=None, foreign_key="bills.id", primary_key=True
     )
     title_id: Optional[int] = Field(
-        default=None, foreign_key="title.id", primary_key=True
+        default=None, foreign_key="titles.id", primary_key=True
     )
 
 class BillWholeTitleLink(SQLModel, table=True):
     __tablename__ = "bill_titleswhole"
     bill_id: Optional[int] = Field(
-        default=None, foreign_key="bill.id", primary_key=True
+        default=None, foreign_key="bills.id", primary_key=True
     )
     title_id: Optional[int] = Field(
-        default=None, foreign_key="title.id", primary_key=True
+        default=None, foreign_key="titles.id", primary_key=True
     )
 
 # Create statement for bill titles table.
@@ -27,9 +27,9 @@ class Title(SQLModel, table=True):
     __tablename__ = "titles"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: datetime 
-    updated_at: datetime 
-    deleted_at: datetime 
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = Field(default=None)
     title: str = Field(index=True, default=None)
     bills: List["Bill"] = Relationship(back_populates="titles", link_model=BillTitleLink)
 
@@ -40,9 +40,9 @@ class Bill(SQLModel, table=True):
     __tablename__ = "bills"
 
     id: Optional[int] = Field(default=None, primary_key=True)
-    created_at: datetime 
-    updated_at: datetime 
-    deleted_at: datetime 
+    created_at: datetime
+    updated_at: datetime
+    deleted_at: Optional[datetime] = Field(default=None)
     billnumber: str = Field(index=True, default=None)
     billnumberversion: str = Field(index=True, default=None)
     titles: List["Title"] = Relationship(back_populates="bills", link_model=BillTitleLink)
