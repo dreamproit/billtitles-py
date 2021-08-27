@@ -1,47 +1,41 @@
 from sqlalchemy.orm import Session
-from datetime import datetime
+from sqlalchemy import func 
 
 from . import models
 
 
-def get_bill(db: Session, bill_id: int):
-    #return db.query(models.Bill).filter(models.Bill.id == bill_id).first()
-    return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.id, models.Title.title, models.BillTitleLink.bill_id, models.BillTitleLink.title_id).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.id == bill_id).first()
-
-# TODO: get bill by billnumberversion
-def get_bill_by_billnumber(db: Session, billnumber: str, titlemain: str=None):
-    if not titlemain:
-        return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
-    elif titlemain:
-        print("Using main titles")
-        return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillWholeTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
+def get_bill_by_billnumber(db: Session, billnumber: str = None):
+    if not billnumber:
+        return None
+    billnumber=billnumber.strip("\"'")
+    bills = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
+    bills_title_whole = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
+    return {"bills": bills, "bills_title_whole": bills_title_whole}
 
 def get_bills(db: Session, skip: int = 0, limit: int = 100):
-    #return db.query(models.Bill).offset(skip).limit(limit).all()
-    return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).offset(skip).limit(limit).all()
-
+    return db.query(models.BillTitle.billnumber, models.BillTitle.title).offset(skip).limit(limit).all()
 
 # TODO: document how to use this and whether it's working
 # In particular, look at adding the titles 
-def create_bill(db: Session, bill: models.Bill):
-    db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion, created_at=datetime.now(), updated_at=datetime.now())
-    db.add(db_bill)
-    db.commit()
-    db.refresh(db_bill)
-    return db_bill
+#def create_bill(db: Session, bill: models.Bill):
+#    db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion, created_at=datetime.now(), updated_at=datetime.now())
+#    db.add(db_bill)
+#    db.commit()
+#    db.refresh(db_bill)
+#    return db_bill
 
+def get_title(db: Session, title_id: int = None, title: str = None):
+    # TODO: handle title_id
 
-def get_title(db: Session, title_id: int):
-    return db.query(models.Title).filter(models.Title.id == title_id).first()
+    if title_id:
+        return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
+
+    if title:
+        title=title.strip("\"'")
+
+    titles = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()
+    titles_whole = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()
+    return {'titles': titles, 'titles_whole': titles_whole} 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.Title).offset(skip).limit(limit).all()
-
-# TODO: document how to use this and whether it's working
-# In particular, look at adding the bills
-def create_bill_title(db: Session, title: models.Title):
-    db_title = models.Title(**title.dict())
-    db.add(db_title)
-    db.commit()
-    db.refresh(db_title)
-    return db_title
+    return db.query(models.BillTitle.billnumber, models.BillTitle.title).offset(skip).limit(limit).all()
