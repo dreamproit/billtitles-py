@@ -26,6 +26,9 @@ def create_bill(db: Session, bill: schemas.BillCreate):
     return db_bill
 
 
+def get_title(db: Session, title_id: int):
+    return db.query(models.Title).filter(models.Title.id == title_id).first()
+
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Title).offset(skip).limit(limit).all()
 

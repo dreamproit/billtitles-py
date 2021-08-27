@@ -23,8 +23,6 @@ class TitleCreate(TitleBase):
 
 class Title(TitleBase):
     id: int
-    title: str 
-
     class Config:
         orm_mode = True
 
@@ -41,7 +39,7 @@ class BillBase(BaseModel):
 class BillCreate(BillBase):
 
     billnumber: str
-
+    billnumberversion: str
 
 
 class Bill(BillBase):

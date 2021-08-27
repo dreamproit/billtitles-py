@@ -57,10 +57,17 @@ def read_bill_id(bill_id: int, db: Session = Depends(get_db)):
 def create_title_for_bill(
     bill_id: int, title: schemas.TitleCreate, db: Session = Depends(get_db)
 ):
-    return crud.create_bill_title(db=db, titlec=title, title=title)
+    return crud.create_bill_title(db=db, title=title)
 
 
 @app.get("/titles/", response_model=List[schemas.Title])
 def read_titles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     titles = crud.get_titles(db, skip=skip, limit=limit)
     return titles
+
+@app.get("/titles/{title_id}", response_model=schemas.Title)
+def read_title_id(title_id: int, db: Session = Depends(get_db)):
+    db_bill = crud.get_title(db, title_id=title_id)
+    if db_bill is None:
+        raise HTTPException(status_code=404, detail="Title not found")
+    return db_bill
