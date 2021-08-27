@@ -28,7 +28,7 @@ class Title(Base):
     updated_at = Column(DateTime)
     deleted_at = Column(DateTime)
     title = Column(String(255), unique=True, nullable=False)
-    bills = relationship("Bill", secondary="bill_titles")
+    bills = relationship("Bill", secondary="bill_titles", back_populates="titles",)
 
 # Create statement from DBSQLite Browser
 # CREATE TABLE `bills` (`id` integer,`created_at` datetime,`updated_at` datetime,`deleted_at` datetime,
@@ -43,5 +43,5 @@ class Bill(Base):
     deleted_at = Column(DateTime)
     billnumber = Column(String(255), unique=True, nullable=False)
     billnumberversion = Column(String(255))
-    titles = relationship("Title", secondary="bill_titles")
-    titleswhole = relationship("Title", secondary="bill_titleswhole")
+    titles = relationship("Title", secondary="bill_titles", back_populates="bills",)
+    titleswhole = relationship("Title", secondary="bill_titleswhole", back_populates="bills",)
