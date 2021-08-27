@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+from . import models
 
 
 def get_bill(db: Session, bill_id: int):
@@ -18,7 +18,7 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 
 # TODO: document how to use this and whether it's working
 # In particular, look at adding the titles 
-def create_bill(db: Session, bill: schemas.BillCreate):
+def create_bill(db: Session, bill: models.Bill):
     db_bill = models.Bill(billnumber=bill.billnumber, billnumberversion=bill.billnumberversion,)
     db.add(db_bill)
     db.commit()
@@ -34,7 +34,7 @@ def get_titles(db: Session, skip: int = 0, limit: int = 100):
 
 # TODO: document how to use this and whether it's working
 # In particular, look at adding the bills
-def create_bill_title(db: Session, title: schemas.TitleCreate):
+def create_bill_title(db: Session, title: models.Title):
     db_title = models.Title(**title.dict())
     db.add(db_title)
     db.commit()
