@@ -8,6 +8,7 @@ def get_bill(db: Session, bill_id: int):
     #return db.query(models.Bill).filter(models.Bill.id == bill_id).first()
     return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.id, models.Title.title, models.BillTitleLink.bill_id, models.BillTitleLink.title_id).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.id == bill_id).first()
 
+# TODO: get bill by billnumberversion
 def get_bill_by_billnumber(db: Session, billnumber: str):
     #return db.query(models.Bill).filter(models.Bill.billnumber == billnumber).join(models.BillTitleLink).join(models.Title).all()
     return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
