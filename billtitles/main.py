@@ -40,8 +40,9 @@ def read_bills(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
 # TODO: The current database does not have any billnumberversions other than ih
 # In the future, we can store these separately in the db and retrieve by billnumber or billnumberversion
 @app.get("/bills/{billnumber}", response_model=List[models.BillAndTitle])
-def read_bill(billnumber: str, db: Session = Depends(get_db)):
-    db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber)
+def read_bill(billnumber: str, db: Session = Depends(get_db), titlemain: str = None):
+    db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber, titlemain=titlemain)
+    print(titlemain)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
     return db_bill

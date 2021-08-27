@@ -9,9 +9,12 @@ def get_bill(db: Session, bill_id: int):
     return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.id, models.Title.title, models.BillTitleLink.bill_id, models.BillTitleLink.title_id).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.id == bill_id).first()
 
 # TODO: get bill by billnumberversion
-def get_bill_by_billnumber(db: Session, billnumber: str):
-    #return db.query(models.Bill).filter(models.Bill.billnumber == billnumber).join(models.BillTitleLink).join(models.Title).all()
-    return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
+def get_bill_by_billnumber(db: Session, billnumber: str, titlemain: str=None):
+    if not titlemain:
+        return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
+    elif titlemain:
+        print("Using main titles")
+        return db.query(models.Bill.id, models.Bill.billnumber, models.Bill.billnumberversion, models.Title.title ).select_from(models.Bill).join(models.BillWholeTitleLink).join(models.Title).filter(models.Bill.billnumber == billnumber).all()
 
 def get_bills(db: Session, skip: int = 0, limit: int = 100):
     #return db.query(models.Bill).offset(skip).limit(limit).all()
