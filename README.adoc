@@ -31,19 +31,19 @@ The api includes paths to get bills, titles, and bills related by title:
 
 `/bills/related/{billnumber}`
 
-image::bill-to-bill-query.png[alt=Get related bills, width=640,height=480]
+image::bill-to-bill-query.png[alt=Get related bills, width=1040,height=280]
 
 `/bills/{billnumber}`
 
-image::bill-query.png[alt=Get bill by billnumber,width=640,height=480]
+image::bill-query.png[alt=Get bill by billnumber,width=1040,height=280]
 
 `/titles/?title={title name}`
 
-image::title-query.png[alt=Get title by name,width=640,height=480]
+image::title-query.png[alt=Get title by name,width=1040,height=280]
 
 `/titles/{title_id}`
 
-image::title-id-query.png[alt=Get title by id,width=640,height=480]
+image::title-id-query.png[alt=Get title by id,width=1040,height=280]
 
 ## TODO: provide a docker image to install and run the server
 
