@@ -34,7 +34,7 @@ class BillTitlePlus(SQLModel, table=True):
     is_for_whole_bill: bool = Field(default=False)
 
 class BillToBill(SQLModel, table=True):
-    __tablename__ = "bill_to_bill"
+    __tablename__ = "bill_to_bills"
 
     id: Optional[int] = Field(default=None, primary_key=True)
     score: Optional[float] = Field(default=None)
