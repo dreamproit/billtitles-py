@@ -6,9 +6,13 @@
 
 ## Overview
 
-This repository provides an http service to get bills, titles and bills related by title (using FastAPI); This API is used to retrieve, create, update, and delete bills and titles. It is built on the self-documenting FastAPI in Python.
+This repository provides an `http` service to get bills, titles, bills related by title, and bills related by section similarity. It is built on the self-documenting FastAPI in Python and uses data from xref:see-also[other related repositories].
 
-## Usage 
+## Usage
+
+Install using Docker (xref:docker[see below])
+
+Or:
 
 * Install `git-lfs` to download the sqlite3 database that goes with this API. (https://git-lfs.github.com/).
 * Clone this repository with `git clone https://github.com/aih/billtitles-py.git`
@@ -45,7 +49,17 @@ image::title-query.png[alt=Get title by name,width=1040,height=280]
 
 image::title-id-query.png[alt=Get title by id,width=1040,height=280]
 
-## TODO: provide a docker image to install and run the server
+## Docker
+
+A docker image is provided at `arihersh/billtitles` on Dockerhub. To run it, install Docker, and run:
+
+`docker run -d -t -i -p 8000:8000 arihersh/billtitles`
+
+This will expose the API on your local port `8000`. To expose another local port (e.g., `2222`), instead run `docker run -d -t -i -p 2222:8000 arihersh/billtitles`.
+
+This will install and run the container (about 600Mb) as a daemon.
+
+NOTE: The data in the Docker image is not complete, especially for related bills. The title data should be up-to-date as of the commit of this README. However, it is not meant to be used in production as-is. **MacOs users** the port forwarding for Docker does not work the same on MacOs to forward to a host port. As of this writing I could not figure out how to get it to work, meaning that the image is currently useable on MacOs only as a service to other Docker containers.
 
 ## See Also
 
