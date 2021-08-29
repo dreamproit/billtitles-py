@@ -6,9 +6,13 @@
 
 ## Overview
 
-This repository provides an http service to get bills, titles and bills related by title (using FastAPI); This API is used to retrieve, create, update, and delete bills and titles. It is built on the self-documenting FastAPI in Python.
+This repository provides an `http` service to get bills, titles and bills related by title. It is built on the self-documenting FastAPI in Python.
 
-## Usage 
+## Usage
+
+Install using Docker (see below)
+
+Or:
 
 * Install `git-lfs` to download the sqlite3 database that goes with this API. (https://git-lfs.github.com/).
 * Clone this repository with `git clone https://github.com/aih/billtitles-py.git`
