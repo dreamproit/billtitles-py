@@ -6,11 +6,11 @@
 
 ## Overview
 
-This repository provides an `http` service to get bills, titles and bills related by title. It is built on the self-documenting FastAPI in Python.
+This repository provides an `http` service to get bills, titles, bills related by title, and bills related by section similarity. It is built on the self-documenting FastAPI in Python and uses data from xref:see-also[other related repositories].
 
 ## Usage
 
-Install using Docker (see below)
+Install using Docker (xref:docker[see below])
 
 Or:
 
