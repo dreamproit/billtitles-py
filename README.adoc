@@ -19,7 +19,7 @@ This repository provides an http service to get bills, titles and bills related 
 
 This will provide an API to query for bills and titles; query similar bills by bill number; (soon) to query similar bills by title; and to create, update, and delete bills and titles.
 
-NOTE: The bill-to-bill data is currently incomplete. Some sample bills are shown below.
+NOTE: The bill-to-bill data is only up to date through the date of this README. Some sample bills are shown below.
 
 ## API
 
