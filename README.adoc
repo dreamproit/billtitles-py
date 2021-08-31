@@ -71,4 +71,4 @@ The `github.com/aih/bills` repository provides a Go module to process bills that
 
 ## License
 
-This repository is licensed under the xref:LICENSE[MIT License].
+This repository is licensed under the `MIT License`. See LICENSE for more information.
