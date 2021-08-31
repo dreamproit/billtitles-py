@@ -57,9 +57,11 @@ A docker image is provided at `arihersh/billtitles` on Dockerhub. To run it, ins
 
 This will expose the API on your local port `8000`. To expose another local port (e.g., `2222`), instead run `docker run -d -t -i -p 2222:8000 arihersh/billtitles`.
 
-This will install and run the container (about 600Mb) as a daemon.
+This will install and run the container (about 1Gb) as a daemon.
 
-NOTE: The data in the Docker image is not complete, especially for related bills. The title data should be up-to-date as of the commit of this README. However, it is not meant to be used in production as-is. **MacOs users** the port forwarding for Docker does not work the same on MacOs to forward to a host port. As of this writing I could not figure out how to get it to work, meaning that the image is currently useable on MacOs only as a service to other Docker containers.
+NOTE: The data in the Docker image is not complete, especially for related bills. The title data should be up-to-date as of the commit of this README. However, it is not meant to be used in production as-is. 
+
+NOTE: For **MacOs users**, it may be necessary to set port forwarding in Virtualbox on MacOs to forward to a host port. Set Guest port to 8000 and host port to whatever you want to use on your local machine (I also use 8000). To set the port forwarding, follow the instructions here: https://www.jhipster.tech/tips/020_tip_using_docker_containers_as_localhost_on_mac_and_windows.html
 
 ## See Also
 
@@ -69,4 +71,4 @@ The `github.com/aih/bills` repository provides a Go module to process bills that
 
 ## License
 
-This repository is licensed under the [MIT license](LICENSE).
+This repository is licensed under the xref:LICENSE[MIT License].
