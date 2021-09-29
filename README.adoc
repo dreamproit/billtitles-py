@@ -19,7 +19,7 @@ Or:
 * Install Python > 3.7 (preferably with pyenv)
 * Install dependencies, including FastAPI and the uvicorn server (pip install -r requirements.txt)
 * Use Git lfs to download the billtitles.db file (~ 120MB) into the top level directory of the repository
-* Run the server with `uvicorn billtitles.main:app --reload`
+* Run the server with `uvicorn billtitles.main:app --reload` (default port `8000`)
 
 This will provide an API to query for bills and titles; query similar bills by bill number; (soon) to query similar bills by title; and to create, update, and delete bills and titles.
 
