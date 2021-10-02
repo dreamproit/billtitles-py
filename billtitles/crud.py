@@ -6,15 +6,6 @@ from sqlalchemy.sql.operators import is_
 
 from . import models
 
-def get_or_create(session, model):
-    instance = session.query(model).filter_by(**model.__dict__).first()
-    if instance:
-        return instance
-    else:
-        session.add(model)
-        session.commit()
-        return model
-
 def get_bill_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
         return None
