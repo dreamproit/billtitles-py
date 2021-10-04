@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from sqlalchemy.sql.elements import ClauseElement
@@ -13,7 +14,6 @@ def get_bill_by_billnumber(db: Session, billnumber: str = None):
     bills = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
     bills_title_whole = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
     return {"bills": bills, "bills_title_whole": bills_title_whole}
-
 
 def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
@@ -67,7 +67,7 @@ def get_title_by_billnumber(db: Session, billnumber: str = None):
 def get_billtitle(db: Session, title: str, billnumber: str):
     return db.query(models.BillTitle).filter_by(title=title, billnumber=billnumber).first()
 
-def add_title(db: Session, title: str, billnumber: str, is_for_whole_bill: bool = False):
+def add_title(db: Session, title: str, billnumbers: List[str], is_for_whole_bill: bool = False):
     if title:
         title=title.strip("\"'")
     billtitle = get_billtitle(db, title, billnumber)
@@ -78,9 +78,12 @@ def add_title(db: Session, title: str, billnumber: str, is_for_whole_bill: bool 
     newTitle = models.Title(title=title)
     db.add(newTitle) 
     db.commit()
-    newBillTitle = models.BillTitle(title=title, created_at=created_at, updated_at=updated_at, billnumber=billnumber, is_for_whole_bill=is_for_whole_bill)
-    db.add(newBillTitle) 
-    db.commit()
+    for billnumber in billnumbers:
+        created_at = datetime.now()
+        updated_at = datetime.now()
+        newBillTitle = models.BillTitle(title=title, created_at=created_at, updated_at=updated_at, billnumber=billnumber, is_for_whole_bill=is_for_whole_bill)
+        db.add(newBillTitle) 
+        db.commit()
     return {"billtitle": newTitle, "message": "Title added"}
 
 # Removes the title entry, with all bills associated with it

@@ -70,8 +70,8 @@ def read_titles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), 
     return db_bill
 
 @app.post("/titles/" )
-def add_title_to_db(title: str, billnumber: str, db: Session = Depends(get_db), is_for_whole_bill: bool = False):
-    return crud.add_title(db, title=title, billnumber=billnumber, is_for_whole_bill=is_for_whole_bill)
+def add_title_to_db(title: str, billnumbers: List[str], db: Session = Depends(get_db), is_for_whole_bill: bool = False):
+    return crud.add_title(db, title=title, billnumber=billnumbers, is_for_whole_bill=is_for_whole_bill)
 
 @app.delete("/titles/" )
 def remove_title_from_db(title: str, db: Session = Depends(get_db)):
