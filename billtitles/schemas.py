@@ -11,7 +11,6 @@ BillTitlePlus = create_model(
 
 BillToBillPlus = create_model(
     'BillToBillPlus',
-    titles=list[str],
-    titles_whole_bill=list[str],
+    title=str,
     __base__=models.BillToBill,
 )

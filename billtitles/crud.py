@@ -51,10 +51,8 @@ def get_related_bills_w_titles(db: Session, billnumber: str = None):
     for bill in bills:
         billdict = dict(bill)
         billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
-        if len(billtitles.get('titles', [])) > 0:
-            billdict['titles'] = billtitles.get('titles', [])[0]['titles']
         if len(billtitles.get('titles_whole', [])) > 0:
-            billdict['titles_whole'] = billtitles.get('titles_whole', [])[0]['titles']
+            billdict['title'] = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
         newbills.append(billdict)
     return sorted(newbills, key=lambda k: k.get('score'), reverse=True)
 
