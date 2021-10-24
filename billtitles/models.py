@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlmodel import Field, SQLModel
 
 class Bill(SQLModel, table=True):
-    __tablename__ = "bills"
+    __tablename__ = 'bills'
 
     id: Optional[int] = Field(default=None, primary_key=True)
     billnumber: str = Field(index=True)

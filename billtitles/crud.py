@@ -5,7 +5,27 @@ from sqlalchemy import func
 from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy.sql.operators import is_ 
 
-from . import models
+from . import models, schemas
+from typing import TypedDict
+
+
+def deep_get(d, keys, default=None):
+    """
+    Example:
+        d = {'meta': {'status': 'OK', 'status_code': 200}}
+        deep_get(d, ['meta', 'status_code'])          # => 200
+        deep_get(d, ['garbage', 'status_code'])       # => None
+        deep_get(d, ['meta', 'garbage'], default='-') # => '-'
+    """
+    assert type(keys) is list
+    if d is None:
+        return default
+    if not keys:
+        return d
+    return deep_get(d.get(keys[0]), keys[1:], default)
+class BillsResponse(TypedDict):
+    bills: List[models.BillTitlePlus] 
+    bills_title_whole: List[models.BillTitlePlus] 
 
 def get_bill_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
@@ -21,6 +41,22 @@ def get_related_bills(db: Session, billnumber: str = None):
     billnumber=billnumber.strip("\"'")
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     return bills 
+
+def get_related_bills_w_titles(db: Session, billnumber: str = None):
+    if not billnumber:
+        return None
+    billnumber=billnumber.strip("\"'")
+    bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
+    newbills = []
+    for bill in bills:
+        billdict = dict(bill)
+        billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
+        if len(billtitles.get('titles', [])) > 0:
+            billdict['titles'] = billtitles.get('titles', [])[0]['titles']
+        if len(billtitles.get('titles_whole', [])) > 0:
+            billdict['titles_whole'] = billtitles.get('titles_whole', [])[0]['titles']
+        newbills.append(billdict)
+    return sorted(newbills, key=lambda k: k.get('score'), reverse=True)
 
 def create_billtobill(db: Session, billtobill: models.BillToBill):
     db.add(billtobill)
@@ -58,7 +94,7 @@ def get_titles(db: Session, skip: int = 0, limit: int = 100):
 
 def get_title_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
-        return None
+        return {"titles": [], "titles_whole": []}
     billnumber=billnumber.strip("\"'")
     titles = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
     titles_whole = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
@@ -70,21 +106,26 @@ def get_billtitle(db: Session, title: str, billnumber: str):
 def add_title(db: Session, title: str, billnumbers: List[str], is_for_whole_bill: bool = False):
     if title:
         title=title.strip("\"'")
-    billtitle = get_billtitle(db, title, billnumber)
-    if billtitle:
-        return {"billtitle": billtitle, "message": "Title already exists"}
     created_at = datetime.now()
     updated_at = datetime.now()
     newTitle = models.Title(title=title)
     db.add(newTitle) 
     db.commit()
+    msg = ""
     for billnumber in billnumbers:
+        billtitle = get_billtitle(db, title, billnumber)
+        if billtitle:
+            newmsg = "Title already exists: '" + title + "' for bill: " + billnumber
+            msg = newmsg + "; " + msg
+            continue
+
         created_at = datetime.now()
         updated_at = datetime.now()
         newBillTitle = models.BillTitle(title=title, created_at=created_at, updated_at=updated_at, billnumber=billnumber, is_for_whole_bill=is_for_whole_bill)
         db.add(newBillTitle) 
         db.commit()
-    return {"billtitle": newTitle, "message": "Title added"}
+        msg = "Title added: '" + title + "' for bill: " + billnumber + "; " + msg
+    return {"billtitle": newTitle, "message": msg}
 
 # Removes the title entry, with all bills associated with it
 def remove_title(db: Session, title: str):
