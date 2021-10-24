@@ -23,9 +23,6 @@ def deep_get(d, keys, default=None):
     if not keys:
         return d
     return deep_get(d.get(keys[0]), keys[1:], default)
-
-def sort_list_by_key(list_to_sort, key):
-    return sorted(list_to_sort, key=lambda k: k[key])
 class BillsResponse(TypedDict):
     bills: List[models.BillTitlePlus] 
     bills_title_whole: List[models.BillTitlePlus] 
