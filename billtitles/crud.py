@@ -27,13 +27,21 @@ class BillsResponse(TypedDict):
     bills: List[models.BillTitlePlus] 
     bills_title_whole: List[models.BillTitlePlus] 
 
-def get_bill_by_billnumber(db: Session, billnumber: str = None):
+def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
         return None
     billnumber=billnumber.strip("\"'").lower()
-    bills = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
-    bills_title_whole = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    return {"bills": bills, "bills_title_whole": bills_title_whole}
+    titles_main_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
+    titles_other_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
+    if len(titles_main_resp) > 0:
+        titles_main = titles_main_resp[0].titles.split('; ')
+    else:
+        titles_main = []
+    if len(titles_other_resp) > 0:
+        titles_other = titles_other_resp[0].titles.split('; ')
+    else:
+        titles_other = []
+    return {"billnumber": billnumber, "titles": { "main": titles_main, "titles_other": titles_other}}
 
 def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
