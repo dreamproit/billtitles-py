@@ -1,11 +1,13 @@
 from typing import List, Dict
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.openapi.utils import get_openapi
 from sqlalchemy.orm import Session
 from sqlmodel import SQLModel
 
 from . import crud, models, schemas
 from .database import SessionLocal, engine
+from .version import __version__
 
 SQLModel.metadata.create_all(engine)
 
@@ -77,3 +79,21 @@ def add_title_to_db(title: str, billnumbers: List[str], db: Session = Depends(ge
 @app.delete("/titles/" )
 def remove_title_from_db(title: str, db: Session = Depends(get_db)):
     return crud.remove_title(db, title=title)
+
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+    openapi_schema = get_openapi(
+        title="BillTitles API",
+        version=__version__,
+        description="API for related bills",
+        routes=app.routes,
+    )
+    openapi_schema["info"]["x-logo"] = {
+        "url": "https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png"
+    }
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app.openapi = custom_openapi
