@@ -26,14 +26,14 @@ def get_db():
 
 #@app.get("/bills/related/{billnumber}", response_model=List[schemas.BillToBillPlus])
 @app.get("/bills/related/{billnumber}")
-def related_bills(db: Session = Depends(get_db), billnumber: str = None):
+def related_bills(db: Session = Depends(get_db), billnumber: str = None) -> List[schemas.BillToBillPlus]:
     db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} not found".format(billnumber=billnumber))
     return db_bills
 
-@app.get("/bills/titles/{billnumber}" )
-def read_bills(db: Session = Depends(get_db), billnumber: str = None):
+@app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
+def read_bills(db: Session = Depends(get_db), billnumber: str = None) -> models.BillTitleResponse:
     db_bill = crud.get_bill_titles_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))

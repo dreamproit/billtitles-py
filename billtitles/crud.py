@@ -43,7 +43,7 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
         titles_other = titles_other_resp[0].titles.split('; ')
     else:
         titles_other = []
-    return {"billnumber": billnumber, "titles": { "main": titles_main, "titles_other": titles_other}}
+    return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(main=titles_main, titles_other= titles_other))
 
 def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
