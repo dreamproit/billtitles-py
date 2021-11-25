@@ -48,6 +48,7 @@ class TitleBillsResponseItem(SQLModel):
 class TitleBillsResponse(SQLModel):
     titles: List[TitleBillsResponseItem]
     titles_whole: List[TitleBillsResponseItem]
+
 class BillToBill(SQLModel, table=True):
     __tablename__ = "bill_to_bills"
 

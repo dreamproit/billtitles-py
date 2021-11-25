@@ -54,17 +54,17 @@ def get_related_bills(db: Session, billnumber: str = None):
 
 def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillPlus]: 
     if not billnumber:
-        return None
+        return [] 
     billnumber=billnumber.strip("\"'").lower()
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     newbills = []
     for bill in bills:
-        billdict = dict(bill)
+        billplus = models.BillToBillPlus(**bill.__dict__)
         billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
         if len(billtitles.get('titles_whole', [])) > 0:
-            billdict['title'] = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
-        newbills.append(billdict)
-    return sorted(newbills, key=lambda k: k.get('score'), reverse=True)
+            billplus.title = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
+        newbills.append(billplus)
+    return sorted(newbills, key=lambda k: k.score if k.score is not None else 0, reverse=True)
 
 def create_billtobill(db: Session, billtobill: models.BillToBill):
     db.add(billtobill)
