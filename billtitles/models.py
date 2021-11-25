@@ -40,6 +40,14 @@ class TitlesItem(SQLModel):
 class BillTitleResponse(SQLModel):
     billnumber: str 
     titles: TitlesItem
+
+class TitleBillsResponseItem(SQLModel):
+    title: str 
+    billnumbers: List[str] 
+
+class TitleBillsResponse(SQLModel):
+    titles: List[TitleBillsResponseItem]
+    titles_whole: List[TitleBillsResponseItem]
 class BillToBill(SQLModel, table=True):
     __tablename__ = "bill_to_bills"
 

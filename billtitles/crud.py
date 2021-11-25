@@ -52,7 +52,7 @@ def get_related_bills(db: Session, billnumber: str = None):
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     return bills 
 
-def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillTitlePlus]:
+def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillPlus]: 
     if not billnumber:
         return None
     billnumber=billnumber.strip("\"'").lower()
@@ -84,18 +84,16 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 #    db.refresh(db_bill)
 #    return db_bill
 
-def get_title(db: Session, title_id: int = None, title: str = None):
-    # TODO: handle title_id
+def get_title_by_id(db: Session, title_id: int):
+    return db.query(models.Title).filter_by(id=title_id).first()
 
-    if title_id:
-        return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
+def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
-    if title:
-        title=title.strip("\"'")
+    title=title.strip("\"'")
 
-    titles = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()
-    titles_whole = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()
-    return {"titles": titles, "titles_whole": titles_whole} 
+    titles = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()]
+    titles_whole = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()]
+    return models.TitleBillsResponse(titles=titles, titles_whole= titles_whole) 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.BillTitle.billnumber, models.BillTitle.title).offset(skip).limit(limit).all()
