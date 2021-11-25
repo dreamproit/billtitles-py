@@ -62,3 +62,5 @@ class BillToBill(SQLModel, table=True):
 
 class BillToBillPlus(BillToBill):
     title: str
+    version: str
+    version_to: str
