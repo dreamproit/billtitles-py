@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.orm import Session
 from sqlmodel import SQLModel
 
-from . import crud, models, schemas
+from . import crud, models
 from .database import SessionLocal, engine
 from .version import __version__
 
@@ -24,16 +24,15 @@ def get_db():
     finally:
         db.close()
 
-#@app.get("/bills/related/{billnumber}", response_model=List[schemas.BillToBillPlus])
-@app.get("/bills/related/{billnumber}")
-def related_bills(db: Session = Depends(get_db), billnumber: str = None):
+@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillPlus])
+def related_bills(db: Session = Depends(get_db), billnumber: str = None) -> List[models.BillToBillPlus]:
     db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} not found".format(billnumber=billnumber))
     return db_bills
 
-@app.get("/bills/titles/{billnumber}" )
-def read_bills(db: Session = Depends(get_db), billnumber: str = None):
+@app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
+def read_bills(db: Session = Depends(get_db), billnumber: str = None) -> models.BillTitleResponse:
     db_bill = crud.get_bill_titles_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
@@ -57,20 +56,24 @@ def create_related(db: Session = Depends(get_db)):
     return db_bill
 
 @app.get("/titles/{title_id}" )
-def read_title(title_id: int, db: Session = Depends(get_db) ):
-    db_bill = crud.get_title(db, title_id=title_id)
+def read_title(title_id: int, db: Session = Depends(get_db) ) -> models.TitleBillsResponse:
+    db_bill = crud.get_title_by_id(db, title_id=title_id)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Title with id {title_id} not found".format(title_id=title_id))
     return db_bill
 
+# TODO This returns three different kind of responses depending on whether
+# there is a title parameter, a title id parameter or neither (with skip & limit)
+# Need to split these responses to different queries or return the same
+# response type for all three 
 @app.get("/titles/" )
 def read_titles(skip: int = 0, limit: int = 100, db: Session = Depends(get_db), title_id: int = None, title: str = None):
-    if not title_id and not title:
+    if title_id is not None:
+        return crud.get_title_by_id(db, title_id=title_id)
+    elif title is not None:
+        return crud.get_title(db, title=title)
+    else:
         return crud.get_titles(db, skip=skip, limit=limit)
-    db_bill = crud.get_title(db, title_id=title_id, title=title)
-    if db_bill is None:
-        raise HTTPException(status_code=404, detail="Title not found")
-    return db_bill
 
 @app.post("/titles/" )
 def add_title_to_db(title: str, billnumbers: List[str], db: Session = Depends(get_db), is_for_whole_bill: bool = False):

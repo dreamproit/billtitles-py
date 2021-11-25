@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy.sql.operators import is_ 
 
-from . import models, schemas
+from . import models
 from typing import TypedDict
 
 
@@ -33,17 +33,17 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
     billnumber=billnumber.strip("\"'").lower()
     # In postgres it may be possible to use array_agg like this: 
     # titles_main_resp = db.query(models.BillTitle.billnumber, func.array_agg(models.BillTitle.title).label('titles_main') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_main_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_other_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
-    if len(titles_main_resp) > 0:
-        titles_main = titles_main_resp[0].titles.split('; ')
+    titles_whole_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
+    titles_all_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
+    if len(titles_whole_resp) > 0:
+        titles_whole = titles_whole_resp[0].titles.split('; ')
     else:
-        titles_main = []
-    if len(titles_other_resp) > 0:
-        titles_other = titles_other_resp[0].titles.split('; ')
+        titles_whole = []
+    if len(titles_all_resp) > 0:
+        titles_all = titles_all_resp[0].titles.split('; ')
     else:
-        titles_other = []
-    return {"billnumber": billnumber, "titles": { "main": titles_main, "titles_other": titles_other}}
+        titles_all = []
+    return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
 def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
@@ -52,19 +52,19 @@ def get_related_bills(db: Session, billnumber: str = None):
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     return bills 
 
-def get_related_bills_w_titles(db: Session, billnumber: str = None):
+def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillPlus]: 
     if not billnumber:
-        return None
+        return [] 
     billnumber=billnumber.strip("\"'").lower()
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     newbills = []
     for bill in bills:
-        billdict = dict(bill)
+        billplus = models.BillToBillPlus(**bill.__dict__)
         billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
         if len(billtitles.get('titles_whole', [])) > 0:
-            billdict['title'] = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
-        newbills.append(billdict)
-    return sorted(newbills, key=lambda k: k.get('score'), reverse=True)
+            billplus.title = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
+        newbills.append(billplus)
+    return sorted(newbills, key=lambda k: k.score if k.score is not None else 0, reverse=True)
 
 def create_billtobill(db: Session, billtobill: models.BillToBill):
     db.add(billtobill)
@@ -84,18 +84,16 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 #    db.refresh(db_bill)
 #    return db_bill
 
-def get_title(db: Session, title_id: int = None, title: str = None):
-    # TODO: handle title_id
+def get_title_by_id(db: Session, title_id: int):
+    return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
 
-    if title_id:
-        return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
+def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
-    if title:
-        title=title.strip("\"'")
+    title=title.strip("\"'")
 
-    titles = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()
-    titles_whole = db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('bills') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()
-    return {"titles": titles, "titles_whole": titles_whole} 
+    titles = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()]
+    titles_whole = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()]
+    return models.TitleBillsResponse(titles=titles, titles_whole= titles_whole) 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.BillTitle.billnumber, models.BillTitle.title).offset(skip).limit(limit).all()
