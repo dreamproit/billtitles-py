@@ -64,3 +64,4 @@ class BillToBillPlus(BillToBill):
     title: str
     version: str
     version_to: str
+    reasons: Optional[List[str]] = []

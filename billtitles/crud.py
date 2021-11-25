@@ -63,6 +63,8 @@ def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[mode
         billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
         if len(billtitles.get('titles_whole', [])) > 0:
             billplus.title = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
+        if billplus.reason and len(billplus.reason) > 0:
+            billplus.reasons = billplus.reason.split('; ')
         newbills.append(billplus)
     return sorted(newbills, key=lambda k: k.score if k.score is not None else 0, reverse=True)
 
