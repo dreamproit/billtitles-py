@@ -85,7 +85,7 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 #    return db_bill
 
 def get_title_by_id(db: Session, title_id: int):
-    return db.query(models.Title).filter_by(id=title_id).first()
+    return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
 
 def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
