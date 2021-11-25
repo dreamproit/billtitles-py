@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.openapi.utils import get_openapi
@@ -8,6 +8,8 @@ from sqlmodel import SQLModel
 from . import crud, models
 from .database import SessionLocal, engine
 from .version import __version__
+
+BILL_VERSION_DEFAULT = '--'
 
 SQLModel.metadata.create_all(engine)
 
@@ -24,29 +26,30 @@ def get_db():
     finally:
         db.close()
 
+@app.get("/bills/related", response_model=List[models.BillToBillPlus])
 @app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillPlus])
-def related_bills(db: Session = Depends(get_db), billnumber: str = None) -> List[models.BillToBillPlus]:
+@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillPlus])
+def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)) -> List[models.BillToBillPlus]:
+    if version is None:
+        version = BILL_VERSION_DEFAULT
     db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
     if db_bills is None:
-        raise HTTPException(status_code=404, detail="Bills related to {billnumber} not found".format(billnumber=billnumber))
-    return db_bills
+        raise HTTPException(status_code=404, detail="Bills related to {billnumber} ({version}) not found".format(billnumber=billnumber, version=version))
+    # Add placeholder version to response
+    # TODO: remove this when version is added in db
+    db_bills_version = []
+    for bill in db_bills:
+        bill.version = version 
+        bill.version_to = BILL_VERSION_DEFAULT
+        db_bills_version.append(bill)
+    return db_bills_version
 
 @app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
-def read_bills(db: Session = Depends(get_db), billnumber: str = None) -> models.BillTitleResponse:
+def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTitleResponse:
     db_bill = crud.get_bill_titles_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
     return db_bill
-
-#@app.get("/bills/" )
-#def read_bills_param(db: Session = Depends(get_db), billnumber: str = None, skip: int = 0, limit: int = 100):
-#    if not billnumber:
-#        db_bill = crud.get_bills(db, skip=skip, limit=limit)
-#    else:
-#        db_bill = crud.get_bill_by_billnumber(db, billnumber=billnumber)
-#    if db_bill is None:
-#        raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
-#    return db_bill
 
 @app.post("/related/" )
 def create_related(db: Session = Depends(get_db)):
