@@ -33,6 +33,13 @@ class BillTitlePlus(SQLModel, table=True):
     titles: str
     is_for_whole_bill: bool = Field(default=False)
 
+class TitlesItem(SQLModel):
+    whole: List[str]
+    all: List[str]
+
+class BillTitleResponse(SQLModel):
+    billnumber: str 
+    titles: TitlesItem
 class BillToBill(SQLModel, table=True):
     __tablename__ = "bill_to_bills"
 
@@ -43,3 +50,6 @@ class BillToBill(SQLModel, table=True):
     billnumber_to: str = Field(index=True)
     reason: str = Field(index=True)
     identified_by: str
+
+class BillToBillPlus(BillToBill):
+    title: str

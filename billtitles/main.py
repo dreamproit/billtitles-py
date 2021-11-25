@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.orm import Session
 from sqlmodel import SQLModel
 
-from . import crud, models, schemas
+from . import crud, models
 from .database import SessionLocal, engine
 from .version import __version__
 
@@ -24,9 +24,8 @@ def get_db():
     finally:
         db.close()
 
-#@app.get("/bills/related/{billnumber}", response_model=List[schemas.BillToBillPlus])
-@app.get("/bills/related/{billnumber}")
-def related_bills(db: Session = Depends(get_db), billnumber: str = None) -> List[schemas.BillToBillPlus]:
+@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillPlus])
+def related_bills(db: Session = Depends(get_db), billnumber: str = None) -> List[models.BillToBillPlus]:
     db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} not found".format(billnumber=billnumber))

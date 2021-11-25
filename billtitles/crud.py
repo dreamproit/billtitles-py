@@ -5,7 +5,7 @@ from sqlalchemy import func
 from sqlalchemy.sql.elements import ClauseElement
 from sqlalchemy.sql.operators import is_ 
 
-from . import models, schemas
+from . import models
 from typing import TypedDict
 
 
@@ -33,17 +33,17 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
     billnumber=billnumber.strip("\"'").lower()
     # In postgres it may be possible to use array_agg like this: 
     # titles_main_resp = db.query(models.BillTitle.billnumber, func.array_agg(models.BillTitle.title).label('titles_main') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_main_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_other_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
-    if len(titles_main_resp) > 0:
-        titles_main = titles_main_resp[0].titles.split('; ')
+    titles_whole_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
+    titles_all_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
+    if len(titles_whole_resp) > 0:
+        titles_whole = titles_whole_resp[0].titles.split('; ')
     else:
-        titles_main = []
-    if len(titles_other_resp) > 0:
-        titles_other = titles_other_resp[0].titles.split('; ')
+        titles_whole = []
+    if len(titles_all_resp) > 0:
+        titles_all = titles_all_resp[0].titles.split('; ')
     else:
-        titles_other = []
-    return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(main=titles_main, titles_other= titles_other))
+        titles_all = []
+    return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
 def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
@@ -52,7 +52,7 @@ def get_related_bills(db: Session, billnumber: str = None):
     bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
     return bills 
 
-def get_related_bills_w_titles(db: Session, billnumber: str = None):
+def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillTitlePlus]:
     if not billnumber:
         return None
     billnumber=billnumber.strip("\"'").lower()
