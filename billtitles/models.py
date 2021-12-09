@@ -42,6 +42,7 @@ class BillTitleResponse(SQLModel):
     titles: TitlesItem
 
 class TitleBillsResponseItem(SQLModel):
+    id: int
     title: str 
     billnumbers: List[str] 
 

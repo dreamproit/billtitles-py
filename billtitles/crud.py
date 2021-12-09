@@ -93,8 +93,8 @@ def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
     title=title.strip("\"'")
 
-    titles = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()]
-    titles_whole = [models.TitleBillsResponseItem(title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()]
+    titles = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, models.BillTitle.id, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()]
+    titles_whole = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, models.BillTitle.id, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()]
     return models.TitleBillsResponse(titles=titles, titles_whole= titles_whole) 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
