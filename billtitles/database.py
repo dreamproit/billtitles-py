@@ -1,10 +1,15 @@
+#!/usr/bin/env python3
+
 from sqlalchemy.orm import sessionmaker
-from sqlmodel import SQLModel, create_engine
-from . import models
+from sqlmodel import create_engine
 
-sqlite_file_name = "./billtitles.db"
-sqlite_url = f"sqlite:///{sqlite_file_name}"
+from .constants import POSTGRES_PW
 
-engine = create_engine(sqlite_url, echo=True)
+postgres_url = f"postgresql://postgres:{POSTGRES_PW}@localhost/billsim"
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+engine = create_engine(postgres_url, echo=False)
+
+SessionLocal = sessionmaker(autocommit=False,
+                            autoflush=False,
+                            expire_on_commit=False,
+                            bind=engine)
