@@ -1,12 +1,8 @@
 from typing import Optional, List 
 from datetime import datetime
 from sqlmodel import Field, SQLModel
-
-class Bill(SQLModel, table=True):
-    __tablename__ = 'bills'
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    billnumber: str = Field(index=True)
+from .database import engine
+from .pymodels import *
 
 class Title(SQLModel, table=True):
     __tablename__ = "titles"
@@ -50,19 +46,14 @@ class TitleBillsResponse(SQLModel):
     titles: List[TitleBillsResponseItem]
     titles_whole: List[TitleBillsResponseItem]
 
-class BillToBill(SQLModel, table=True):
-    __tablename__ = "bill_to_bills"
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    score: Optional[float] = Field(default=None)
-    score_other: Optional[float] = Field(default=None)
-    billnumber: str = Field(index=True)
-    billnumber_to: str = Field(index=True)
-    reason: str = Field(index=True)
-    identified_by: str
-
-class BillToBillPlus(BillToBill):
+class BillToBillPlus(BillToBillModel):
     title: str
     version: str
     version_to: str
     reasons: Optional[List[str]] = []
+
+def create_db_and_tables():
+    SQLModel.metadata.create_all(engine)
+
+if __name__ == "__main__":
+    create_db_and_tables()
