@@ -3,9 +3,9 @@
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import create_engine
 
-from .constants import POSTGRES_PW
+import constants
 
-postgres_url = f"postgresql://postgres:{POSTGRES_PW}@localhost/billsim"
+postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost/billsim"
 
 engine = create_engine(postgres_url, echo=False)
 
