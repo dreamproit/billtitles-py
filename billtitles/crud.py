@@ -52,10 +52,10 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None):
         version=version.strip("\"'").lower()
     if not version:
         #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
-        bills = db.query(models.Bill.id).filter(models.Bill.billnumber == billnumber).all()
+        bills = db.query(models.Bill, models.BillToBill).filter(models.Bill.billnumber == billnumber).outerjoin(models.BillToBill, models.BillToBill.bill_id == models.Bill.id ).all()
     else:
         #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
-        bills = db.query(models.Bill.id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).all()
+        bills = db.query(models.Bill, models.BillToBill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).outerjoin(models.BillToBill, models.BillToBill.bill_id == models.Bill.id ).all()
         
     return bills 
 
