@@ -7,7 +7,7 @@ from . import constants
 
 postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost/billsim"
 
-engine = create_engine(postgres_url, echo=False)
+engine = create_engine(postgres_url, echo=True)
 
 SessionLocal = sessionmaker(autocommit=False,
                             autoflush=False,

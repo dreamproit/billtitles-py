@@ -2,6 +2,7 @@ from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
+from sqlalchemy.sql.elements import literal_column
 
 from . import models
 from typing import TypedDict
@@ -31,8 +32,8 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
     billnumber=billnumber.strip("\"'").lower()
     # In postgres it may be possible to use array_agg like this: 
     # titles_main_resp = db.query(models.BillTitle.billnumber, func.array_agg(models.BillTitle.title).label('titles_main') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_whole_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
-    titles_all_resp = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
+    titles_whole_resp = db.query(models.Bill, func.string_agg(models.Title.title, literal_column("'; '")).label('titles')).filter(models.Bill.billnumber==billnumber).join(models.BillTitle, models.BillTitle.bill_id == models.Bill.id).join(models.Title, models.Title.id == models.BillTitle.title_id).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Bill.id).all()
+    titles_all_resp = db.query(models.Bill, func.string_agg(models.Title.title, literal_column("'; '")).label('titles')).filter(models.Bill.billnumber==billnumber).join(models.BillTitle, models.BillTitle.bill_id == models.Bill.id).join(models.Title, models.Title.id == models.BillTitle.title_id).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Bill.id).all()
     if len(titles_whole_resp) > 0:
         titles_whole = titles_whole_resp[0].titles.split('; ')
     else:
