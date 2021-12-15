@@ -1,11 +1,13 @@
 from datetime import datetime
 from typing import List
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import aliased, Session
 from sqlalchemy import func
 from sqlalchemy.sql.elements import literal_column
 
 from . import models
 from typing import TypedDict
+
+bill_to = aliased(models.Bill)
 
 
 def deep_get(d, keys, default=None):
@@ -52,10 +54,12 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None):
         version=version.strip("\"'").lower()
     if not version:
         #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
-        bills = db.query(models.Bill, models.BillToBill).filter(models.Bill.billnumber == billnumber).outerjoin(models.BillToBill, models.BillToBill.bill_id == models.Bill.id ).all()
+        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber).outerjoin(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+        bills = db.query(bill_to).filter(subquery.c.bill_to_id == bill_to.id).all()
     else:
         #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
-        bills = db.query(models.Bill, models.BillToBill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).outerjoin(models.BillToBill, models.BillToBill.bill_id == models.Bill.id ).all()
+        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+        bills = db.query(bill_to).filter(subquery.c.bill_to_id == bill_to.id).all()
         
     return bills 
 
