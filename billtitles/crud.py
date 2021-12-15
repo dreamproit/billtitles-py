@@ -44,11 +44,19 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
         titles_all = []
     return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
-def get_related_bills(db: Session, billnumber: str = None):
+def get_related_bills(db: Session, billnumber: str = None, version: str = None):
     if not billnumber:
         return None
     billnumber=billnumber.strip("\"'").lower()
-    bills = db.query(models.BillToBill, models.Bill).filter(models.Bill.billnumber == billnumber).all()
+    if version:
+        version=version.strip("\"'").lower()
+    if not version:
+        #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
+        bills = db.query(models.Bill.id).filter(models.Bill.billnumber == billnumber).all()
+    else:
+        #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
+        bills = db.query(models.Bill.id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).all()
+        
     return bills 
 
 def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillModel]: 
