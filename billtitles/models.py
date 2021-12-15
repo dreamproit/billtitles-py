@@ -4,7 +4,8 @@ from sqlalchemy.sql.schema import UniqueConstraint
 from sqlalchemy.sql.sqltypes import VARCHAR
 from sqlmodel import Field, SQLModel, Column
 from typing import List, Optional
-from billsim.database import engine
+from database import engine
+from datetime import datetime
 
 
 class Status(SQLModel):
@@ -153,7 +154,9 @@ class Title(SQLModel, table=True):
 class BillTitle(SQLModel, table=True):
     __tablename__ = "bill_titles"
 
-    id: Optional[int] = Field(default=None, primary_key=True)
+    title_id: Optional[int] = Field(default=None,
+                                   foreign_key="titles.id",
+                                   primary_key=True)
     bill_id: Optional[int] = Field(default=None,
                                    foreign_key="bill.id",
                                    primary_key=True)
