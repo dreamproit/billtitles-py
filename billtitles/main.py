@@ -26,10 +26,10 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/bills/related", response_model=List[models.BillToBillPlus])
-@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillPlus])
-@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillPlus])
-def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)) -> List[models.BillToBillPlus]:
+@app.get("/bills/related", response_model=List[models.BillToBillModel])
+@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillModel])
+@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillModel])
+def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)) -> List[models.BillToBillModel]:
     if version is None:
         version = BILL_VERSION_DEFAULT
     db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
@@ -54,9 +54,9 @@ def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTit
 @app.post("/related/" )
 def create_related(db: Session = Depends(get_db)):
     # TODO: Use POST data to create a new related bill
-    if db_bill is None:
+    if db is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
-    return db_bill
+    return db
 
 @app.get("/titles/{title_id}" )
 def read_title(title_id: int, db: Session = Depends(get_db) ) -> models.TitleBillsResponse:

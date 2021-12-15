@@ -2,8 +2,6 @@ from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 from sqlalchemy import func
-from sqlalchemy.sql.elements import ClauseElement
-from sqlalchemy.sql.operators import is_ 
 
 from . import models
 from typing import TypedDict
@@ -49,17 +47,17 @@ def get_related_bills(db: Session, billnumber: str = None):
     if not billnumber:
         return None
     billnumber=billnumber.strip("\"'").lower()
-    bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
+    bills = db.query(models.BillToBill, models.Bill).filter(models.Bill.billnumber == billnumber).all()
     return bills 
 
-def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillPlus]: 
+def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillModel]: 
     if not billnumber:
         return [] 
     billnumber=billnumber.strip("\"'").lower()
-    bills = db.query(models.BillToBill).filter(models.BillToBill.billnumber == billnumber).all()
+    bills = db.query(models.BillToBill, models.Bill).filter(models.Bill.billnumber == billnumber).all()
     newbills = []
     for bill in bills:
-        billplus = models.BillToBillPlus(**bill.__dict__)
+        billplus = models.BillToBillModel(**bill.__dict__)
         billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
         if len(billtitles.get('titles_whole', [])) > 0:
             billplus.title = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
@@ -87,29 +85,29 @@ def get_bills(db: Session, skip: int = 0, limit: int = 100):
 #    return db_bill
 
 def get_title_by_id(db: Session, title_id: int):
-    return db.query(models.BillTitle).filter(models.BillTitle.id == title_id).first()
+    return db.query(models.BillTitle).filter(models.BillTitle.title_id == title_id).first()
 
 def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
     title=title.strip("\"'")
 
-    titles = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, models.BillTitle.id, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.title).all()]
-    titles_whole = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.BillTitle.title, models.BillTitle.id, func.group_concat(models.BillTitle.billnumber, "; ").label('billnumbers') ).filter(models.BillTitle.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.title).all()]
+    titles = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.Bill.billnumber, models.Title.title, models.BillTitle.title_id, func.group_concat(models.Bill.billnumber, "; ").label('billnumbers') ).filter(models.Title.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Title.title).all()]
+    titles_whole = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.Bill.billnumber, models.Title.title, models.BillTitle.title_id, func.group_concat(models.Bill.billnumber, "; ").label('billnumbers') ).filter(models.Title.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Title.title).all()]
     return models.TitleBillsResponse(titles=titles, titles_whole= titles_whole) 
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
-    return db.query(models.BillTitle.billnumber, models.BillTitle.title).offset(skip).limit(limit).all()
+    return db.query(models.Bill.billnumber, models.Title.title).offset(skip).limit(limit).all()
 
 def get_title_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
         return {"titles": [], "titles_whole": []}
     billnumber=billnumber.strip("\"'").lower()
-    titles = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.BillTitle.billnumber).all()
-    titles_whole = db.query(models.BillTitle.billnumber, func.group_concat(models.BillTitle.title, "; ").label('titles') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
+    titles = db.query(models.Bill.billnumber, func.group_concat(models.Title.title, "; ").label('titles') ).filter(models.Bill.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Bill.billnumber).all()
+    titles_whole = db.query(models.Bill.billnumber, func.group_concat(models.Title.title, "; ").label('titles') ).filter(models.Bill.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Bill.billnumber).all()
     return {"titles": titles, "titles_whole": titles_whole}
 
 def get_billtitle(db: Session, title: str, billnumber: str):
-    return db.query(models.BillTitle).filter_by(title=title, billnumber=billnumber).first()
+    return db.query(models.Bill.billnumber, models.Title.title).filter_by(title=title, billnumber=billnumber).first()
 
 def add_title(db: Session, title: str, billnumbers: List[str], is_for_whole_bill: bool = False):
     if title:
@@ -138,7 +136,7 @@ def add_title(db: Session, title: str, billnumbers: List[str], is_for_whole_bill
 # Removes the title entry, with all bills associated with it
 def remove_title(db: Session, title: str):
     rows = db.query(models.Title).filter_by(title=title).delete()
-    db.query(models.BillTitle).filter_by(title=title).delete()
+    # TODO: check if this deletes the join table entries too
     db.commit()
     if rows >0:
         return {"title": title, "message": "Title removed"}

@@ -4,8 +4,7 @@ from sqlalchemy.sql.schema import UniqueConstraint
 from sqlalchemy.sql.sqltypes import VARCHAR
 from sqlmodel import Field, SQLModel, Column
 from typing import List, Optional
-from database import engine
-from datetime import datetime
+from .database import engine
 
 
 class Status(SQLModel):

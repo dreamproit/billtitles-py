@@ -3,7 +3,7 @@
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import create_engine
 
-import constants
+from . import constants
 
 postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost/billsim"
 
