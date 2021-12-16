@@ -53,11 +53,11 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None):
     if version:
         version=version.strip("\"'").lower()
     if not version:
-        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring, models.BillToBill.sections_num, models.BillToBill.sections_match, models.BillToBill.score_es, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
     else:
         #bills = db.query(models.Bill).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, (models.BillToBill.bill_id == models.Bill.id)).all()
-        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+        subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring,  models.BillToBill.sections_num, models.BillToBill.sections_match, models.BillToBill.score_es, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
         
     billsdict = []
