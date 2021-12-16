@@ -26,14 +26,17 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/bills/related", response_model=List[models.BillToBillModel])
-@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillModel])
-@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillModel])
-def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)):
+#@app.get("/bills/related", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+@app.get("/bills/related")
+@app.get("/bills/related/{billnumber}")
+@app.get("/bills/related/{billnumber}/{version}")
+def related_bills(billnumber: str,  version: Optional[str] = None, flat: Optional[bool] = True, db: Session = Depends(get_db)):
     if version is None:
         version = BILL_VERSION_DEFAULT
     # TODO: get the latest version of the bill and get resuls from that
-    db_bills = crud.get_related_bills(db, billnumber=billnumber, version=version)
+    db_bills = crud.get_related_bills(db, billnumber=billnumber, version=version, flat=flat)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} ({version}) not found".format(billnumber=billnumber, version=version))
     return db_bills

@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import List
+from typing import List, Optional
 from sqlalchemy.orm import aliased, Session
 from sqlalchemy import func, desc
 from sqlalchemy.sql.elements import literal_column
@@ -46,7 +46,7 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
         titles_all = []
     return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
-def get_related_bills(db: Session, billnumber: str = None, version: str = None, withTitle: bool = True) -> List[models.BillToBillModel]:
+def get_related_bills(db: Session, billnumber: str = None, version: str = None, withTitle: bool = True, flat: Optional[bool] = True) -> List[models.BillToBillModel or models.BillToBillModelDeep]:
     if not billnumber:
         return [] 
     billnumber=billnumber.strip("\"'").lower()
@@ -59,8 +59,6 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None, 
                             models.BillToBill.bill_id, models.BillToBill.bill_to_id
                             ).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
-        if withTitle:
-            pass
     else:
         subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length,
                             models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring,
@@ -68,35 +66,56 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None, 
                             models.BillToBill.bill_id, models.BillToBill.bill_to_id
                             ).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
-        if withTitle:
-            pass
         
     billdicts = []
+    titles = get_bill_titles_by_billnumber(db, billnumber)
+    title = None
+    if titles:
+        if titles.titles.whole:
+            title = titles.titles.whole[0]
+        else:
+            if titles.titles.all:
+                title = titles.titles.all[0]
     for bill in bills:
         bill = bill._asdict()
         bill['billnumber_version'] = bill.get('billnumber', '') + bill.get('version', '')
         bill['length_to'] = bill.get('length_to', 0)
         bill['billnumber_version_to'] = bill.get('billnumber_to', '') + bill.get('version_to', '')
         bill['reasons'] = bill.get('reasonsstring', '').split(', ')
-        bill['title'] = bill.get('title_id', '')
+        if withTitle:
+            titles_to = get_bill_titles_by_billnumber(db, bill.get('billnumber_to'))
+            #titles = get_titles_by_bill_id(db, bill.get('bill_id'))
+            bill['titles_to'] = titles_to
+            title_to = None
+            if titles_to:
+                if titles_to.titles.whole:
+                    title_to = titles_to.titles.whole[0]
+                else:
+                    if titles_to.titles.all:
+                        title_to = titles_to.titles.all[0]
+            bill['title_to'] = title_to
+            bill['titles_to'] = titles_to
+            bill['titles'] = titles
+            bill['title'] = title
         billdicts.append(bill)
+    if flat == False:
+        extrafields = ['reasons', 'score', 'score_to', 'identified_by', 'sections_num', 'sections_match', 'sections']
+        billdicts_to = []
+        billfrom = None
+        for billdict in billdicts:
+            billdict_deep_extra = { 'reasons': billdict.get('reasons', []), 
+              'score': billdict.get('score', 0), 
+              'score_to': billdict.get('score_to', 0), 
+              'identified_by': billdict.get('identified_by', None),
+              'sections_num': billdict.get('sections_num', None),
+              'sections_match': billdict.get('sections_match', None),
+              'sections': billdict.get('sections', None)}  
+            billdict_deep_to = models.BillModelDeep(**{keyitem.replace("_to", ""): billdict[keyitem] for keyitem in billdict.keys() if keyitem.find('_to') > -1 and keyitem not in extrafields}, **billdict_deep_extra)
+            billdicts_to.append(billdict_deep_to)
+        # TODO add the 'from' bill at the beginning of the list
+        #billfrom = {'bill': models.BillModelDeep(**{keyitem: billdicts[0][keyitem] for keyitem in billdicts.keys() if not keyitem.find('_to') > -1 and keyitem not in extrafields})}
+        return billdicts_to
     return billdicts
-
-def get_related_bills_w_titles(db: Session, billnumber: str = None) -> List[models.BillToBillModel]: 
-    if not billnumber:
-        return [] 
-    billnumber=billnumber.strip("\"'").lower()
-    bills = db.query(models.BillToBill, models.Bill).filter(models.Bill.billnumber == billnumber).all()
-    newbills = []
-    for bill in bills:
-        billplus = models.BillToBillModel(**bill.__dict__)
-        billtitles = dict(get_title_by_billnumber(db, bill.billnumber_to))
-        if len(billtitles.get('titles_whole', [])) > 0:
-            billplus.title = billtitles.get('titles_whole', [])[0]['titles'].split('; ')[0]
-        if billplus.reason and len(billplus.reason) > 0:
-            billplus.reasons = billplus.reason.split('; ')
-        newbills.append(billplus)
-    return sorted(newbills, key=lambda k: k.score if k.score is not None else 0, reverse=True)
 
 def create_billtobill(db: Session, billtobill: models.BillToBill):
     db.add(billtobill)
@@ -129,6 +148,10 @@ def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
 def get_titles(db: Session, skip: int = 0, limit: int = 100):
     return db.query(models.Bill.billnumber, models.Title.title).offset(skip).limit(limit).all()
+
+def get_titles_by_bill_id(db: Session, bill_id: int):
+    return db.query(models.BillTitle, models.Title.title).filter(models.BillTitle.bill_id == bill_id).join(models.Title,
+                                                                                        models.Title.id == models.BillTitle.title_id).all()
 
 def get_title_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
