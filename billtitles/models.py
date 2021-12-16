@@ -78,6 +78,7 @@ class BillToBillModel(SQLModel):
                                       primary_key=True)
     billnumber_version: str
     length: Optional[int] = None
+    length_to: Optional[int] = None
     billnumber_version_to: str
     score_es: Optional[float] = None
     score: Optional[float] = None
