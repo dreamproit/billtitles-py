@@ -46,25 +46,30 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
         titles_all = []
     return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
-def get_related_bills(db: Session, billnumber: str = None, version: str = None) -> List[models.BillToBillModel]:
+def get_related_bills(db: Session, billnumber: str = None, version: str = None, withTitle: bool = True) -> List[models.BillToBillModel]:
     if not billnumber:
-        return None
+        return [] 
     billnumber=billnumber.strip("\"'").lower()
     if version:
         version=version.strip("\"'").lower()
     if not version:
-        #subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length, models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring, models.BillToBill.sections_num, models.BillToBill.sections_match, models.BillToBill.score_es, models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length,
                             models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring,
                             models.BillToBill.sections_num, models.BillToBill.sections_match, models.BillToBill.score_es, 
-                            models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+                            models.BillToBill.bill_id, models.BillToBill.bill_to_id
+                            ).filter(models.Bill.billnumber == billnumber).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
+        if withTitle:
+            pass
     else:
         subquery = db.query(models.Bill.billnumber, models.Bill.version, models.Bill.length,
                             models.BillToBill.score, models.BillToBill.score_to, models.BillToBill.reasonsstring,
                             models.BillToBill.sections_num, models.BillToBill.sections_match, models.BillToBill.score_es,
-                            models.BillToBill.bill_id, models.BillToBill.bill_to_id).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
+                            models.BillToBill.bill_id, models.BillToBill.bill_to_id
+                            ).filter(models.Bill.billnumber == billnumber, models.Bill.version == version).join(models.BillToBill, models.BillToBill.bill_id == models.Bill.id).subquery();
         bills = db.query(bill_to.billnumber.label("billnumber_to"), bill_to.version.label("version_to"), bill_to.length.label("length_to"), subquery).filter(subquery.c.bill_to_id == bill_to.id).order_by(desc(subquery.c.score)).all()
+        if withTitle:
+            pass
         
     billdicts = []
     for bill in bills:
@@ -73,6 +78,7 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None) 
         bill['length_to'] = bill.get('length_to', 0)
         bill['billnumber_version_to'] = bill.get('billnumber_to', '') + bill.get('version_to', '')
         bill['reasons'] = bill.get('reasonsstring', '').split(', ')
+        bill['title'] = bill.get('title_id', '')
         billdicts.append(bill)
     return billdicts
 
