@@ -32,17 +32,11 @@ def get_db():
 def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)):
     if version is None:
         version = BILL_VERSION_DEFAULT
+    # TODO: get the latest version of the bill and get resuls from that
     db_bills = crud.get_related_bills(db, billnumber=billnumber, version=version)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} ({version}) not found".format(billnumber=billnumber, version=version))
-    # Add placeholder version to response
-    # TODO: remove this when version is added in db
-    db_bills_version = []
-    for bill in db_bills:
-      #  bill.version = version 
-      #  bill.version_to = BILL_VERSION_DEFAULT
-        db_bills_version.append(bill)
-    return db_bills_version
+    return db_bills
 
 @app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
 def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTitleResponse:

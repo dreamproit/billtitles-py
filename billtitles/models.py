@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from sqlalchemy.sql.schema import UniqueConstraint
-from sqlalchemy.sql.sqltypes import VARCHAR
+from sqlalchemy.sql.sqltypes import ARRAY, VARCHAR, String
 from sqlmodel import Field, SQLModel, Column
 from typing import List, Optional
 from .database import engine
@@ -61,7 +61,7 @@ class Bill(SQLModel, table=True):
     length: Optional[int] = None
     # TODO: when indexing/storing Bill initially, calculate number of sections
     #sections_num: Optional[int] = None
-    billnumber: str
+    billnumber: str = Field(index=True)
     version: str
 
     @classmethod
@@ -76,17 +76,15 @@ class BillToBillModel(SQLModel):
     bill_to_id: Optional[int] = Field(default=None,
                                       foreign_key="bill.id",
                                       primary_key=True)
-    billnumber_version: str
+    billnumber_version: str = Field(index=True)
     length: Optional[int] = None
     length_to: Optional[int] = None
-    billnumber_version_to: str
+    billnumber_version_to: str = Field(index=True)
     score_es: Optional[float] = None
     score: Optional[float] = None
     score_to: Optional[float] = None
-    #reasons: Optional[List[str]] = Field(default=None,
-    #                                     sa_column=Column(ARRAY(String)))
-    reasonsstring: Optional[str] = Field(default=None,
-                                         sa_column=Column(VARCHAR(100)))
+    reasons: Optional[List[str]] = Field(default=None,
+                                         sa_column=Column(ARRAY(String)))
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
@@ -123,8 +121,8 @@ class SectionItem(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     bill_id: Optional[int] = Field(default=None, foreign_key="bill.id")
     section_id: Optional[str] = Field(default=None)
-    label: Optional[str]
-    header: Optional[str]
+    label: Optional[str] = Field(default=None, index=True)
+    header: Optional[str] = Field(default=None, index=True)
     length: int
 
 
