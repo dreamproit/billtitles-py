@@ -35,7 +35,7 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
     # In postgres it may be possible to use array_agg like this: 
     # titles_main_resp = db.query(models.BillTitle.billnumber, func.array_agg(models.BillTitle.title).label('titles_main') ).filter(models.BillTitle.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.BillTitle.billnumber).all()
     titles_whole_resp = db.query(models.Bill, func.string_agg(models.Title.title, literal_column("'; '")).label('titles')).filter(models.Bill.billnumber==billnumber).join(models.BillTitle, models.BillTitle.bill_id == models.Bill.id).join(models.Title, models.Title.id == models.BillTitle.title_id).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Bill.id).all()
-    titles_all_resp = db.query(models.Bill, func.string_agg(models.Title.title, literal_column("'; '")).label('titles')).filter(models.Bill.billnumber==billnumber).join(models.BillTitle, models.BillTitle.bill_id == models.Bill.id).join(models.Title, models.Title.id == models.BillTitle.title_id).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Bill.id).all()
+    titles_all_resp = db.query(models.Bill, func.string_agg(models.Title.title, literal_column("'; '")).label('titles')).filter(models.Bill.billnumber==billnumber).join(models.BillTitle, models.BillTitle.bill_id == models.Bill.id).join(models.Title, models.Title.id == models.BillTitle.title_id).group_by(models.Bill.id).all()
     if len(titles_whole_resp) > 0:
         titles_whole = titles_whole_resp[0].titles.split('; ')
     else:
@@ -142,7 +142,7 @@ def get_title(db: Session, title: str) -> models.TitleBillsResponse:
 
     title=title.strip("\"'")
 
-    titles = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.Bill.billnumber, models.Title.title, models.BillTitle.title_id, func.group_concat(models.Bill.billnumber, "; ").label('billnumbers') ).filter(models.Title.title == title).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Title.title).all()]
+    titles = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.Bill.billnumber, models.Title.title, models.BillTitle.title_id, func.group_concat(models.Bill.billnumber, "; ").label('billnumbers') ).filter(models.Title.title == title).group_by(models.Title.title).all()]
     titles_whole = [models.TitleBillsResponseItem(id=item.id, title=item.title, billnumbers=item.billnumbers.split('; ')) for item in db.query(models.Bill.billnumber, models.Title.title, models.BillTitle.title_id, func.group_concat(models.Bill.billnumber, "; ").label('billnumbers') ).filter(models.Title.title == title).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Title.title).all()]
     return models.TitleBillsResponse(titles=titles, titles_whole= titles_whole) 
 
@@ -157,7 +157,7 @@ def get_title_by_billnumber(db: Session, billnumber: str = None):
     if not billnumber:
         return {"titles": [], "titles_whole": []}
     billnumber=billnumber.strip("\"'").lower()
-    titles = db.query(models.Bill.billnumber, func.group_concat(models.Title.title, "; ").label('titles') ).filter(models.Bill.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == False).group_by(models.Bill.billnumber).all()
+    titles = db.query(models.Bill.billnumber, func.group_concat(models.Title.title, "; ").label('titles') ).filter(models.Bill.billnumber == billnumber).group_by(models.Bill.billnumber).all()
     titles_whole = db.query(models.Bill.billnumber, func.group_concat(models.Title.title, "; ").label('titles') ).filter(models.Bill.billnumber == billnumber).filter(models.BillTitle.is_for_whole_bill == True).group_by(models.Bill.billnumber).all()
     return {"titles": titles, "titles_whole": titles_whole}
 
