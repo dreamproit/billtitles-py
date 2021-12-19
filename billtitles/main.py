@@ -26,23 +26,20 @@ def get_db():
     finally:
         db.close()
 
-@app.get("/bills/related", response_model=List[models.BillToBillPlus])
-@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillPlus])
-@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillPlus])
-def related_bills(billnumber: str,  version: Optional[str] = None, db: Session = Depends(get_db)) -> List[models.BillToBillPlus]:
+#@app.get("/bills/related", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+@app.get("/bills/related")
+@app.get("/bills/related/{billnumber}")
+@app.get("/bills/related/{billnumber}/{version}")
+def related_bills(billnumber: str,  version: Optional[str] = None, flat: Optional[bool] = True, db: Session = Depends(get_db)):
     if version is None:
         version = BILL_VERSION_DEFAULT
-    db_bills = crud.get_related_bills_w_titles(db, billnumber=billnumber)
+    # TODO: get the latest version of the bill and get resuls from that
+    db_bills = crud.get_related_bills(db, billnumber=billnumber, version=version, flat=flat)
     if db_bills is None:
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} ({version}) not found".format(billnumber=billnumber, version=version))
-    # Add placeholder version to response
-    # TODO: remove this when version is added in db
-    db_bills_version = []
-    for bill in db_bills:
-        bill.version = version 
-        bill.version_to = BILL_VERSION_DEFAULT
-        db_bills_version.append(bill)
-    return db_bills_version
+    return db_bills
 
 @app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
 def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTitleResponse:
@@ -54,9 +51,9 @@ def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTit
 @app.post("/related/" )
 def create_related(db: Session = Depends(get_db)):
     # TODO: Use POST data to create a new related bill
-    if db_bill is None:
+    if db is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
-    return db_bill
+    return db
 
 @app.get("/titles/{title_id}" )
 def read_title(title_id: int, db: Session = Depends(get_db) ) -> models.TitleBillsResponse:
