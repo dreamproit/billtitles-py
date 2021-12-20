@@ -45,7 +45,7 @@ class QuerySection(SectionMeta):
 class BillSections(SQLModel):
     billnumber_version: str
     length: int
-    sections: list[Section]
+    sections: List[Section]
 
 
 class SimilarSectionHit(SQLModel):
@@ -96,7 +96,7 @@ class BillToBillModel(SQLModel):
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
-    sections: Optional[list[
+    sections: Optional[List[
         Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
 
 class BillModelDeep(SQLModel):
@@ -117,7 +117,7 @@ class BillModelDeep(SQLModel):
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
-    sections: Optional[list[
+    sections: Optional[List[
         Section]] = None    #
 
     
@@ -129,7 +129,7 @@ class BillToBillModelDeep(SQLModel):
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
-    sections: Optional[list[
+    sections: Optional[List[
         Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
 
 # Model used to store in db

@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  server:
+    image: docker.io/arihersh/billtitles:latest
+    environment:
+      POSTGRES_URL: postgresql://postgres:postgres@db:5432
+    ports:
+      - 8000:8000
+    depends_on:
+      - db
+  db:
+    image: docker.io/arihersh/billsim-pgsql:latest
+    ports:
+      - 5432:5432
