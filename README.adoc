@@ -6,24 +6,23 @@
 
 ## Overview
 
-This repository provides an `http` service to get bills, titles, bills related by title, and bills related by section similarity. It is built on the self-documenting FastAPI in Python and uses data from xref:see-also[other related repositories].
+This repository provides an `http` service to get bills, titles, bills related by title, and bills related by section similarity. It is built on the self-documenting FastAPI in Python and uses data from xref:see-also[other related repositories]. Initially, this data was stored in a `sqlite` database, but was migrated to a `postgres` database. The original version of the API, with SQLite data embedded, is available in self-contained docker containers, through 0.1.5 (`docker run -d -t -i -p 8000:8000 ghcr.io/aih/billtitles:0.1.5`)
 
 ## Usage
 
-Install using Docker (xref:docker[see below])
+Run using Docker and docker-compose (xref:docker[see below])
 
 Or:
 
-* Install `git-lfs` to download the sqlite3 database that goes with this API. (https://git-lfs.github.com/).
 * Clone this repository with `git clone https://github.com/aih/billtitles-py.git`
 * Install Python > 3.7 (preferably with pyenv)
 * Install dependencies, including FastAPI and the uvicorn server (pip install -r requirements.txt)
-* Use Git lfs to download the billtitles.db file (~ 120MB) into the top level directory of the repository
+* Run the PostgreSQL database server (using docker: `docker run -d -t -i -p 5432:5432 postgres`)
 * Run the server with `uvicorn billtitles.main:app --reload` (default port `8000`)
 
 This will provide an API to query for bills and titles; query similar bills by bill number; (soon) to query similar bills by title; and to create, update, and delete bills and titles.
 
-NOTE: The bill-to-bill data is only up to date through the date of this README. Some sample bills are shown below.
+NOTE: The bill-to-bill data is only up to date through the date of this README.
 
 ## API
 
@@ -31,33 +30,19 @@ The API is self-documenting, thanks to FastAPI. It can be viewed and tested at `
 
 image::api-docs.png[alt=View API documentation,width=640,height=480]
 
-The api includes paths to get bills, titles, and bills related by title:
-
-`/bills/related/{billnumber}`
-
-image::bill-to-bill-query.png[alt=Get related bills, width=1040,height=280]
-
-`/bills/{billnumber}`
-
-image::bill-query.png[alt=Get bill by billnumber,width=1040,height=280]
-
-`/titles/?title={title name}`
-
-image::title-query.png[alt=Get title by name,width=1040,height=280]
-
-`/titles/{title_id}`
-
-image::title-id-query.png[alt=Get title by id,width=1040,height=280]
+The api includes paths to get bills, titles, and bills related by title.
 
 ## Docker
 
-A docker image is provided at `arihersh/billtitles` on Dockerhub. To run it, install Docker, and run:
+Within this repository is a  `docker-compose.yml` file that can be used to run the API in a docker container. The `docker-compose.yml` refers to two docker images:
 
-`docker run -d -t -i -p 8000:8000 arihersh/billtitles`
+ - docker.io/arihersh/billtitles (the FastAPI application, contained in this repository and defined by the Dockerfile at the top level of the directory)
+ - docker.io/arihersh/billsim-pgsql (the PostgreSQL database. The tables for this are defined in models.py. It is loaded with ~ 2Gb of data derived from processes in the `github.com/aih/billsim` repository. The docker container is built with the dockerfile at dockerpgsa/Dockerfile in this repository.) 
 
-This will expose the API on your local port `8000`. To expose another local port (e.g., `2222`), instead run `docker run -d -t -i -p 2222:8000 arihersh/billtitles`.
+The database container alone can be run with:
+`docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
 
-This will install and run the container (about 1Gb) as a daemon.
+Then the database can be accessed at `psql postgresql://postgres:postgres@localhost:5432`
 
 NOTE: The data in the Docker image is not complete, especially for related bills. The title data should be up-to-date as of the commit of this README. However, it is not meant to be used in production as-is. 
 
@@ -65,18 +50,7 @@ NOTE: For **MacOs users**, it may be necessary to set port forwarding in Virtual
 
 ## See Also
 
-See also the `github.com/aih/bills` and `github.com/aih/billtitles` repositories in Go.
-
-The `github.com/aih/bills` repository provides a Go module to process bills that were downloaded using the unitedstates/congress scrapers. The `github.com/aih/billtitles` repository is another Go module that converts the json output from `bills` into sqlite3. It also provides a (crude) Go API to query for bills and titles.
-
-### Postgres data and database
-
-The API runs with a docker container that uses a Postgres database. The container is at docker.io/arihersh/billsim-pgsql. To run it, install Docker (or podman), and run:
-`docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
-
-The database can be accessed at `psql postgresql://postgres:postgres@localhost:5432`
-
-The database is created from the `billtitles.db` file in the top level directory of the repository.
+See also the `github.com/aih/billsim` and the `github.com/aih/bills` repositories. The `billsim` repository processes bill data into a PostgresSql database, while the `bills` repository provides a Go module to calculate similarity scores between bills.
 
 ## License
 
