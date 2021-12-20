@@ -5,7 +5,11 @@ from sqlmodel import create_engine
 
 from . import constants
 
-postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost/billsim"
+#postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost/billsim"
+if constants.POSTGRES_URL is None:
+    postgres_url = f"postgresql://postgres:{constants.POSTGRES_PW}@localhost"
+else:
+    postgres_url = constants.POSTGRES_URL
 
 engine = create_engine(postgres_url, echo=True)
 

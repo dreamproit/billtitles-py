@@ -69,6 +69,15 @@ See also the `github.com/aih/bills` and `github.com/aih/billtitles` repositories
 
 The `github.com/aih/bills` repository provides a Go module to process bills that were downloaded using the unitedstates/congress scrapers. The `github.com/aih/billtitles` repository is another Go module that converts the json output from `bills` into sqlite3. It also provides a (crude) Go API to query for bills and titles.
 
+### Postgres data and database
+
+The API runs with a docker container that uses a Postgres database. The container is at docker.io/arihersh/billsim-pgsql. To run it, install Docker (or podman), and run:
+`docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
+
+The database can be accessed at `psql postgresql://postgres:postgres@localhost:5432`
+
+The database is created from the `billtitles.db` file in the top level directory of the repository.
+
 ## License
 
 This repository is licensed under the `MIT License`. See LICENSE for more information.
