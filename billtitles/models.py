@@ -33,7 +33,7 @@ class SimilarSection(SectionMeta):
 
 
 class Section(SectionMeta):
-    similar_sections: list[SimilarSection]
+    similar_sections: List[SimilarSection]
 
 
 # This is the basis for making queries, using billsim.bill_similarity.py getSimilarSectionItem
