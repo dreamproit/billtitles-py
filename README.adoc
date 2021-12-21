@@ -44,6 +44,34 @@ The `docker-compose.yml` refers to two custom docker images:
 
 In addition, it creates an Elasticsearch cluster, as described here: https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html.
 
+To run the docker-compose file, use:
+`docker-compose up -d` (adduse a `&` to run in the background)
+
+### Load Elasticsearch data from .json.gz files
+
+See https://github.com/elasticsearch-dump/elasticsearch-dump
+
+** Unzip the `.json.gz`
+
+`gzip -d elasticdump.billsim.json.gz`
+`gzip -d elasticdump.bill_full.json.gz`
+
+NOTE: these files are available separately, and are generated from data created by the `github.com/aih/billsim` repository.
+
+** Restore data to Elasticsearch
+
+```
+elasticdump \
+  --input "elasticdump.billsim.json" \
+  --output=http://localhost:9200/billsim
+
+elasticdump \
+  --input "elasticdump.bill_full.json" \
+  --output=http://localhost:9200/bill_full
+```
+
+### Run the PostgreSQL database container alone 
+
 The database container alone can be run with:
 `docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
 
