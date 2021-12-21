@@ -16,79 +16,69 @@ services:
       - 5432:5432
     volumes:
       - pgdata:/var/lib/postgresql/data
-# before starting, create the volume:
-# docker volume create pgdata
 
-volumes:
-  pgdata:
+# docker volume create pgdata
   # ES settings with adjustments for podman: 
   # https://gist.github.com/geragio/32ac8bbcfb0e51e9a2399ae4586730bd
-#   es01:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-#     container_name: es01
-#     environment:
-#       - node.name=es01
-#       - cluster.name=es-docker-cluster
-#       - discovery.seed_hosts=es02,es03
-#       - cluster.initial_master_nodes=es01,es02,es03
-#       - bootstrap.memory_lock=false
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - data01:/usr/share/elasticsearch/data
-#     ports:
-#       - 9200:9200
-#     networks:
-#       - elastic
-# 
-#   es02:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-#     container_name: es02
-#     environment:
-#       - node.name=es02
-#       - cluster.name=es-docker-cluster
-#       - discovery.seed_hosts=es01,es03
-#       - cluster.initial_master_nodes=es01,es02,es03
-#       - bootstrap.memory_lock=false
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#     #ulimits:
-#     #  memlock:
-#     #    soft: -1
-#     #    hard: -1
-#     volumes:
-#       - data02:/usr/share/elasticsearch/data
-#     networks:
-#       - elastic
-# 
-#   es03:
-#     image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
-#     container_name: es03
-#     environment:
-#       - node.name=es03
-#       - cluster.name=es-docker-cluster
-#       - discovery.seed_hosts=es01,es02
-#       - cluster.initial_master_nodes=es01,es02,es03
-#       - bootstrap.memory_lock=false
-#       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#     ulimits:
-#       memlock:
-#         soft: -1
-#         hard: -1
-#     volumes:
-#       - data03:/usr/share/elasticsearch/data
-#     networks:
-#       - elastic
-# volumes:
-#   data01:
-#     driver: local
-#   data02:
-#     driver: local
-#   data03:
-#     driver: local
-# 
-# networks:
-#   elastic:
-#     driver: bridge
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+ 
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+ 
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.16.2
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+volumes:
+  pgdata:
+  
+  data01:
+   driver: local
+   
+  data02:
+   driver: local
+  
+  data03:
+   driver: local
+networks:
+  elastic:
+    driver: bridge
+# Exits with error:
+# bootstrap check failure [1] of [1]: max virtual memory areas vm.max_map_count [65530] is too low, increase to at least [262144]
