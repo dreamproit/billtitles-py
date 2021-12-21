@@ -34,10 +34,15 @@ The api includes paths to get bills, titles, and bills related by title.
 
 ## Docker
 
-Within this repository is a  `docker-compose.yml` file that can be used to run the API in a docker container. The `docker-compose.yml` refers to two docker images:
+Within this repository is a  `docker-compose.yml` file that can be used to run the API in a docker container. To run this compose file requires at least 20GB of disk space (for the PostgresSQL container) and at least 4GB of RAM (for the Elasticsearch container). I used a machine with the following settings:
+` podman machine init --disk-size=20 --memory=5000`
+
+The `docker-compose.yml` refers to two custom docker images:
 
  - docker.io/arihersh/billtitles (the FastAPI application, contained in this repository and defined by the Dockerfile at the top level of the directory)
  - docker.io/arihersh/billsim-pgsql (the PostgreSQL database. The tables for this are defined in models.py. It is loaded with ~ 2Gb of data derived from processes in the `github.com/aih/billsim` repository. The docker container is built with the dockerfile at dockerpgsa/Dockerfile in this repository.) 
+
+In addition, it creates an Elasticsearch cluster, as described here: https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html.
 
 The database container alone can be run with:
 `docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
