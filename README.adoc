@@ -63,11 +63,13 @@ NOTE: these files are available separately, and are generated from data created 
 ```
 elasticdump \
   --input "elasticdump.billsim.json" \
-  --output=http://localhost:9200/billsim --limit=50
+  --output=http://localhost:9200/billsim --limit=50 \
+  --ignore-errors true
 
 elasticdump \
   --input "elasticdump.bill_full.json" \
-  --output=http://localhost:9200/bill_full --limit=50
+  --output=http://localhost:9200/bill_full --limit=50 \
+  --ignore-errors true
 ```
 
 ### Run the PostgreSQL database container alone 
