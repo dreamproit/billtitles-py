@@ -14,8 +14,13 @@ services:
     image: docker.io/arihersh/billsim-pgsql:latest
     ports:
       - 5432:5432
-    #volumes:
-    #  - ./dockerpgsql/pgdata:/var/lib/postgresql/data
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+# before starting, create the volume:
+# docker volume create pgdata
+
+volumes:
+  pgdata:
   # ES settings with adjustments for podman: 
   # https://gist.github.com/geragio/32ac8bbcfb0e51e9a2399ae4586730bd
 #   es01:
