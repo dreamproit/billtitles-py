@@ -16,3 +16,4 @@ sqlmodel==0.0.4
 starlette==0.14.2
 typing-extensions==3.10.0.0
 uvicorn==0.15.0
+-e git+https://github.com/aih/billsim.git#egg=billsim-aih
