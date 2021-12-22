@@ -46,7 +46,7 @@ def get_bill_titles_by_billnumber(db: Session, billnumber: str = None):
         titles_all = []
     return models.BillTitleResponse(billnumber= billnumber, titles= models.TitlesItem(whole=titles_whole, all= titles_all))
 
-def get_related_bills(db: Session, billnumber: str = None, version: str = None, withTitle: bool = True, flat: Optional[bool] = True) -> List[models.BillToBillModel or models.BillToBillModelDeep]:
+def get_related_bills(db: Session, billnumber: str = None, version: str = None, withTitle: bool = True, flat: Optional[bool] = True, billsonly: Optional[bool] = False) -> List[models.BillToBillModel or models.BillToBillModelDeep]:
     if not billnumber:
         return [] 
     billnumber=billnumber.strip("\"'").lower()
@@ -98,6 +98,9 @@ def get_related_bills(db: Session, billnumber: str = None, version: str = None, 
             bill['titles'] = titles
             bill['title'] = title
         billdicts.append(bill)
+    if billsonly:
+       billsList = [bill['billnumber_version_to'] for bill in billdicts] 
+       return billsList
     if flat == False:
         extrafields = ['reasons', 'score', 'score_to', 'identified_by', 'sections_num', 'sections_match', 'sections']
         billdicts_to = []
