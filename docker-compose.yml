@@ -3,6 +3,11 @@ services:
   billtitlesapi:
     image: docker.io/arihersh/billtitles:latest
     container_name: billtitleapi 
+    deploy:
+      restart_policy:
+        delay: 5s
+        max_attempts: 3
+        window: 120s
     environment:
       POSTGRES_URL: postgresql://postgres:postgres@postgresql:5432
     ports:
