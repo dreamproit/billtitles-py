@@ -10,7 +10,7 @@ MarkupSafe==2.0.1
 psycopg2-binary==2.9.2
 pydantic==1.8.2
 python-dotenv==0.19.2
-SQLAlchemy==1.4.23
+SQLAlchemy==1.4.26
 sqlalchemy2-stubs==0.0.2a13
 sqlmodel==0.0.4
 starlette==0.14.2
