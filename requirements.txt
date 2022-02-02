@@ -1,20 +1,24 @@
 alembic==1.7.5
+anyio==3.5.0
 asgiref==3.4.1
+billsim-aih @ https://github.com/aih/billsim/zipball/main
 click==8.0.1
-fastapi==0.68.1
+fastapi==0.73.0
 greenlet==1.1.1
 gunicorn==20.1.0
 h11==0.12.0
+idna==3.3
 Mako==1.1.6
 MarkupSafe==2.0.1
+podman-compose==1.0.2
 psycopg2-binary==2.9.2
 pydantic==1.8.2
 python-dotenv==0.19.2
-SQLAlchemy==1.4.26
+PyYAML==6.0
+sniffio==1.2.0
+SQLAlchemy==1.4.23
 sqlalchemy2-stubs==0.0.2a13
 sqlmodel==0.0.4
-starlette==0.14.2
+starlette==0.17.1
 typing-extensions==3.10.0.0
 uvicorn==0.15.0
-# See https://stackoverflow.com/a/8382819
-https://github.com/aih/billsim/zipball/main#egg=billsim-aih
