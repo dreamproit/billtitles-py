@@ -9,7 +9,12 @@ services:
         max_attempts: 3
         window: 120s
     environment:
-      POSTGRES_URL: postgresql://postgres:postgres@postgresql:5432
+      #POSTGRES_URL: postgresql://postgres:postgres@postgresql:5432
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
     ports:
       - 8000:8000
     depends_on:
