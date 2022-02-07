@@ -1,7 +1,8 @@
 version: '3.8'
 services:
   billtitlesapi:
-    image: docker.io/arihersh/billtitles:latest
+    #image: docker.io/arihersh/billtitles:latest
+    image: docker.io/arihersh/billtitles:0.2.3
     container_name: billtitleapi 
     deploy:
       restart_policy:
