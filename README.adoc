@@ -42,10 +42,8 @@ The `docker-compose.yml` refers to two custom docker images:
  - docker.io/arihersh/billtitles (the FastAPI application, contained in this repository and defined by the Dockerfile at the top level of the directory)
  - docker.io/arihersh/billsim-pgsql (the PostgreSQL database. The tables for this are defined in models.py. It is loaded with ~ 2Gb of data derived from processes in the `github.com/aih/billsim` repository. The docker container is built with the dockerfile at dockerpgsa/Dockerfile in this repository.) 
 
-In addition, it creates an Elasticsearch cluster, as described here: https://www.elastic.co/guide/en/elastic-stack-get-started/current/get-started-docker.html.
-
-To run the docker-compose file, use:
-`docker-compose up -d` (adduse a `&` to run in the background)
+To run the docker-compose file, copy the `.env-sample` file to `.env` in the directory with the `docker-compose.yaml` file and use:
+`docker-compose up -d` (add a `&` at the end to run in the background)
 
 ### Load Elasticsearch data from .json.gz files
 
