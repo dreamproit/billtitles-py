@@ -1,15 +1,27 @@
 #!/usr/bin/env python3
-
+from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlmodel import create_engine
+from sqlmodel.ext.asyncio.session import AsyncSession
 
-from . import constants
+from billtitles.config import settings
 
-postgres_url = constants.POSTGRES_URL 
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI, echo=True)
+SessionLocal = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+    bind=engine,
+)
 
-engine = create_engine(postgres_url, echo=True)
-
-SessionLocal = sessionmaker(autocommit=False,
-                            autoflush=False,
-                            expire_on_commit=False,
-                            bind=engine)
+async_engine = create_async_engine(
+    settings.SQLALCHEMY_ASYNC_DATABASE_URI,
+    echo=True,
+)
+async_session = sessionmaker(
+    async_engine,
+    autocommit=False,
+    autoflush=False,
+    expire_on_commit=False,
+    class_=AsyncSession,
+)
