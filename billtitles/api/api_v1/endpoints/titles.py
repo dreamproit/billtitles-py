@@ -1,6 +1,8 @@
 from typing import List
 from typing import Optional
 
+from sqlalchemy.orm import Session
+
 from billtitles.api import deps
 
 from billtitles import models  # BillBasic, BillStageTitle
@@ -140,16 +142,28 @@ def get_bill_titles_by_bills(bills: List[str] = Depends(deps.parse_list)):
     name="get-matching-titles",
     response_model=BillMatchingTitlesResponse,
 )
-def get_matching_titles(title: str, fuzzy: Optional[bool] = False, limit: int = 10):
+def get_matching_titles(
+    title: str,
+    fuzzy: Optional[bool] = False,
+    limit: int = 10,
+    offset: int = 0,
+    from_db: bool = True,
+    db: Session = Depends(get_db),
+):
     """Get matching titles
 
     Args:
         title (str): title that you want to match
         fuzzy (Optional[bool], optional): fuzzy param. Defaults to True.
-
+        limit (int, optional): limit param. Defaults to 10.
+        offset (int, optional): offset param. Defaults to 0.
+        db (Session): db connection session.
     Returns:
         BillMatchingTitlesResponse or JSONResponse
     """
+    if from_db:
+        titles = db.query(Tit)
+
     slop = len(title.split()) - 1
 
     def build_match_q(field):

@@ -82,83 +82,83 @@ class BillBasic(SQLModel, table=True):
     # )
 
 
-class BillTitles(SQLModel, table=True):
-    """
-    ### Bill Titles Model
+# class BillTitles(SQLModel, table=True):
+#     """
+#     ### Bill Titles Model
+#
+#     Bills can have "official" descriptive titles (almost always),
+#     "short" catchy titles (sometimes), and "popular" nickname titles (rare).
+#     They can have many of these titles, given at various stages of a bill's life.
+#     The current official, short, and popular titles are kept in top-level
+#     official_title, short_title, and popular_title fields.
+#
+#     Popular titles are assigned by the Library of Congress,
+#     and can be added at any time.
+#     """
+#
+#     __tablename__ = "btiapp_billtitles"
+#
+#     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+#     bill_basic_id: int = Field(foreign_key="btiapp_billbasic.id")
+#     bill_basic: "BillBasic" = Relationship()
+#     # bill_basic = models.OneToOneField(
+#     #     BillBasic,
+#     #     verbose_name=_("bill_basic"),
+#     #     related_name="billtitles",
+#     #     on_delete=models.CASCADE,
+#     # )
+#     official_title: Optional[str] = Field(
+#         max_length=2000,
+#         default=None,
+#     )
+#     popular_title: Optional[str] = Field(
+#         max_length=2000,
+#         default=None,
+#     )
+#     short_title: Optional[str] = Field(
+#         max_length=2000,
+#         default=None,
+#     )
 
-    Bills can have "official" descriptive titles (almost always),
-    "short" catchy titles (sometimes), and "popular" nickname titles (rare).
-    They can have many of these titles, given at various stages of a bill's life.
-    The current official, short, and popular titles are kept in top-level
-    official_title, short_title, and popular_title fields.
 
-    Popular titles are assigned by the Library of Congress,
-    and can be added at any time.
-    """
-
-    __tablename__ = "btiapp_billtitles"
-
-    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
-    bill_basic_id: int = Field(foreign_key="btiapp_billbasic.id")
-    bill_basic: "BillBasic" = Relationship()
-    # bill_basic = models.OneToOneField(
-    #     BillBasic,
-    #     verbose_name=_("bill_basic"),
-    #     related_name="billtitles",
-    #     on_delete=models.CASCADE,
-    # )
-    official_title: Optional[str] = Field(
-        max_length=2000,
-        default=None,
-    )
-    popular_title: Optional[str] = Field(
-        max_length=2000,
-        default=None,
-    )
-    short_title: Optional[str] = Field(
-        max_length=2000,
-        default=None,
-    )
-
-
-class BillStageTitle(SQLModel, table=True):
-    """
-    ### Bill Status XML Title Model
-
-    A bill may have multiple titles for any given stage.
-    `is_for_portion` is `true` when the title is for a portion of the bill,
-    and these titles should not be used when choosing a title
-    for display for the entire bill.
-    """
-
-    __tablename__ = "btiapp_billstagetitle"
-
-    # TITLE_TYPE_CHOICES = (
-    #     ("O", "official"),
-    #     ("P", "popular"),
-    #     ("S", "short"),
-    # )
-    id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
-    bill_basic_id: int = Field(foreign_key="btiapp_billbasic.id")
-    bill_basic: BillBasic = Relationship()
-    #     models.ForeignKey(
-    #     BillBasic,
-    #     verbose_name=_("bill_basic"),
-    #     related_name="billstagetitle",
-    #     on_delete=models.CASCADE,
-    # )
-    title: str = Field(max_length=2000)
-    titleNoYear: str = Field(max_length=2000)
-    type: Optional[str] = Field(
-        max_length=10,
-        # choices=TITLE_TYPE_CHOICES,
-        default=None,
-    )
-    As: Optional[str] = Field(
-        max_length=50,
-        default=None,
-    )
-    is_for_portion: Optional[bool] = Field(default=None)
+# class BillStageTitle(SQLModel, table=True):
+#     """
+#     ### Bill Status XML Title Model
+#
+#     A bill may have multiple titles for any given stage.
+#     `is_for_portion` is `true` when the title is for a portion of the bill,
+#     and these titles should not be used when choosing a title
+#     for display for the entire bill.
+#     """
+#
+#     __tablename__ = "btiapp_billstagetitle"
+#
+#     # TITLE_TYPE_CHOICES = (
+#     #     ("O", "official"),
+#     #     ("P", "popular"),
+#     #     ("S", "short"),
+#     # )
+#     id: Optional[int] = Field(default=None, primary_key=True, nullable=False)
+#     bill_basic_id: int = Field(foreign_key="btiapp_billbasic.id")
+#     bill_basic: BillBasic = Relationship()
+#     #     models.ForeignKey(
+#     #     BillBasic,
+#     #     verbose_name=_("bill_basic"),
+#     #     related_name="billstagetitle",
+#     #     on_delete=models.CASCADE,
+#     # )
+#     title: str = Field(max_length=2000)
+#     titleNoYear: str = Field(max_length=2000)
+#     type: Optional[str] = Field(
+#         max_length=10,
+#         # choices=TITLE_TYPE_CHOICES,
+#         default=None,
+#     )
+#     As: Optional[str] = Field(
+#         max_length=50,
+#         default=None,
+#     )
+#     is_for_portion: Optional[bool] = Field(default=None)
 
 
 class Bill(SQLModel, table=True):
