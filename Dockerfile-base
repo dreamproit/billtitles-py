@@ -1,0 +1,5 @@
+FROM python:3.8-slim-buster
+RUN apt-get update && apt-get -y install gcc
+WORKDIR /app
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+ENV APPUSER=appuser
