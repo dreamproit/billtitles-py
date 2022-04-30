@@ -44,8 +44,8 @@ spec:
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /docs
+              port: 8000
           readinessProbe:
             httpGet:
               path: /
