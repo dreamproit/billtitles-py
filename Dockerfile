@@ -2,7 +2,7 @@
 FROM 739065237548.dkr.ecr.us-east-1.amazonaws.com/billtitles-py:base
 #FROM tiangolo/uvicorn-gunicorn:python3.8
 
-EXPOSE 8000
+EXPOSE 80
 
 # Keeps Python from generating .pyc files in the container
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -27,4 +27,4 @@ USER ${APPUSER}
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 #CMD ["uvicorn", "billtitles.main:app"]
-ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "billtitles.main:app"]
+ENTRYPOINT ["gunicorn", "--bind", "0.0.0.0:80", "-k", "uvicorn.workers.UvicornWorker", "billtitles.main:app"]
