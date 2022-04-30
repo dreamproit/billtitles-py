@@ -48,8 +48,8 @@ spec:
               port: 8000
           readinessProbe:
             httpGet:
-              path: /
-              port: http
+              path: /docs
+              port: 8000
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
