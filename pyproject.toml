@@ -2,7 +2,7 @@
 name = "billtitles"
 version = "0.1.0"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors = ["Alexander Boiko <django.develop@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -34,8 +34,8 @@ uvicorn = "0.17.5"
 structlog = "21.5.0"
 black = "22.1.0"
 ciso8601 = "2.2.0"
-billsim-aih = {git = "https://github.com/aih/billsim.git", rev = "main"}
-billtitleindex = {git = "https://github.com/arachnidllc/billtitleindex.git", rev = "test/migrate_to_poetry"}
+billsim-aih = {git = "https://github.com/aih/billsim.git", branch = "main"}
+billtitleindex = {git = "https://github.com/arachnidllc/billtitleindex.git", branch = "test/migrate_to_poetry"}
 
 [tool.poetry.dev-dependencies]
 
