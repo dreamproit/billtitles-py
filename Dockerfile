@@ -15,11 +15,12 @@ ENV POETRY_HOME=/opt/poetry
 RUN apt install git gcc -y
 
 RUN pip install --no-cache-dir poetry==1.1.13 && \
-    poetry config virtualenvs.create false \
+    poetry config virtualenvs.create false
 
 
 # Install pip requirements
 COPY requirements.txt .
+COPY pyproject.toml .
 RUN python -m pip install --upgrade pip
 RUN python -m pip install -r requirements.txt
 
