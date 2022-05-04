@@ -1,6 +1,6 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3.8-slim-buster
-#FROM tiangolo/uvicorn-gunicorn:python3.8
+#FROM python:3.8-slim-buster
+FROM tiangolo/uvicorn-gunicorn:python3.8
 
 EXPOSE 8000
 
@@ -9,6 +9,14 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
+ENV POETRY_NO_INTERACTION=1
+ENV POETRY_HOME=/opt/poetry
+
+RUN apt install git gcc -y
+
+RUN pip install --no-cache-dir poetry==1.1.13 && \
+    poetry config virtualenvs.create false \
+
 
 # Install pip requirements
 COPY requirements.txt .
@@ -23,8 +31,8 @@ COPY . /app
 
 # Creates a non-root user with an explicit UID and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
-RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
-USER appuser
+#RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+#USER appuser
 
 # During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
 #CMD ["uvicorn", "billtitles.main:app"]

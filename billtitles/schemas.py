@@ -1,10 +1,7 @@
-from typing import Dict
-from typing import List
-from typing import Optional
+from typing import List, Optional
 
-from pydantic import BaseModel
-from sqlalchemy import Column, ARRAY, String
-from sqlmodel import SQLModel, Field
+from sqlalchemy.sql.sqltypes import ARRAY, String
+from sqlmodel import Field, SQLModel, Column
 
 
 class Status(SQLModel):
@@ -36,10 +33,12 @@ class Section(SectionMeta):
     similar_sections: List[SimilarSection]
 
 
+# This is the basis for making queries, using billsim.bill_similarity.py getSimilarSectionItem
 class QuerySection(SectionMeta):
     query_text: str
 
 
+# Result of the similarity search, collecting top similar sections for each section of the bill
 class BillSections(SQLModel):
     billnumber_version: str
     length: int
@@ -114,6 +113,7 @@ class BillToBillModelDeep(SQLModel):
     ] = None  # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
 
 
+# For display (from billtitles-py)
 class BillTitlePlus(SQLModel):
     id: Optional[int] = Field(default=None, primary_key=True)
     billnumber: str = Field(index=True)
@@ -140,38 +140,3 @@ class TitleBillsResponseItem(SQLModel):
 class TitleBillsResponse(SQLModel):
     titles: List[TitleBillsResponseItem]
     titles_whole: List[TitleBillsResponseItem]
-
-
-class BillTitlesResponse(BaseModel):
-    """
-    BillTitlesResponse
-    """
-
-    titles: Dict[str, List[str]]
-    titlesNoYear: Dict[str, List[str]]
-
-
-class BillsTitlesResponse(BaseModel):
-    """
-    BillsTitlesResponse
-    """
-
-    __root__: Dict[str, BillTitlesResponse]
-
-
-class BillMatchingTitlesResponse(BaseModel):
-    """
-    BillMatchingTitlesResponse
-    """
-
-    titles: List[str]
-    titlesNoYear: List[str]
-    hitsTotal: int
-
-
-class ErrorResponse(BaseModel):
-    """
-    ErrorResponse
-    """
-
-    error: str

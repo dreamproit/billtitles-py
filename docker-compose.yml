@@ -27,7 +27,6 @@ services:
     ]
 
   postgresql:
-    container_name: pg_db
     image: docker.io/arihersh/billsim-pgsql:latest
     env_file:
       - .envrc
