@@ -31,4 +31,4 @@ app.openapi = custom_openapi
 app.include_router(api_router_v1, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
-    uvicorn.run("billtitles.main:app", host="0.0.0.0", port=80, reload=True)
+    uvicorn.run("billtitles.main:app", host="0.0.0.0", port=8000, reload=True)
