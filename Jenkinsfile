@@ -11,6 +11,8 @@ eksPipeline{
         "POSTGRES_HOST",
         "POSTGRES_USER",
         "POSTGRES_PASSWORD",
+        "POSTGRES_DB",
         "POSTGRES_PORT",
+        "SECRET_KEY"
     ]
 }
