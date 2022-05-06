@@ -15,6 +15,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: http
       protocol: TCP
-      name: http
+      name: https
   selector:
     {{- include "billtitles-py.selectorLabels" . | nindent 4 }}
