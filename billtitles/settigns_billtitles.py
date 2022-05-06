@@ -113,18 +113,19 @@ ALLOWED_HOSTS = ["*"]
 # import django
 DATABASES = {
     "default": {
-        "ENGINE": "billtitles.dummy",
-        # django.db.backends.postgresql_psycopg2",
-        "NAME": os.environ.get("POSTGRES_DB"),
-        "USER": os.environ.get("POSTGRES_USER"),
-        "PASSWORD": os.environ.get("POSTGRES_PASSWORD"),
-        "HOST": os.environ.get("POSTGRES_HOST"),
-        "PORT": os.environ.get("POSTGRES_PORT"),
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": config("BTI_POSTGRES_DB"),
+        "USER": config("BTI_POSTGRES_USER"),
+        "PASSWORD": config("BTI_POSTGRES_PASSWORD"),
+        "HOST": config("BTI_POSTGRES_HOST"),
+        "PORT": config("BTI_POSTGRES_PORT"),
     }
 }
 
 ELASTICSEARCH_DSL = {
-    "default": {"hosts": config("ELASTICSEARCH_URI")},
+    "default": {
+        "hosts": config("BTI_ELASTICSEARCH_URI"),
+    }  # config("ELASTICSEARCH_URI")},
 }
 
 # celery settings
