@@ -18,7 +18,7 @@ RUN pip install --no-cache-dir poetry==1.1.13 && \
 
 # Install pip requirements
 # COPY requirements.txt .
-COPY pyproject.toml poetry.lock  .
+COPY pyproject.toml poetry.lock ./
 RUN poetry install
 #RUN python -m pip install --upgrade pip
 #RUN python -m pip install -r requirements.txt
