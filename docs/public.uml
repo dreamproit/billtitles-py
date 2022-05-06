@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>314d6ff7-7898-4d92-8299-eab6d457e83d.SCHEMA:temp.public</OriginalElement>
+  <nodes>
+    <node x="163.94907407407408" y="260.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billstagetitle</node>
+    <node x="562.9490740740741" y="282.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billtitles</node>
+    <node x="266.25" y="531.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.sectionitem</node>
+    <node x="387.9490740740741" y="293.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill</node>
+    <node x="378.0416666666667" y="0.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billbasic</node>
+    <node x="819.9490740740741" y="0.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.alembic_version</node>
+    <node x="33.949074074074076" y="315.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.titles</node>
+    <node x="439.25" y="498.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.billtobill</node>
+    <node x="242.75" y="780.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.sectiontosection</node>
+    <node x="0.0" y="564.0">314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill_titles</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billbasic" relationship="REFERENCES">
+      <point x="0.0" y="-61.0" />
+      <point x="465.4490740740741" y="235.0" />
+      <point x="472.5416666666667" y="235.0" />
+      <point x="0.0" y="105.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill_titles" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.titles" relationship="REFERENCES">
+      <point x="-50.25" y="-50.0" />
+      <point x="50.25" y="478.0" />
+      <point x="88.94907407407408" y="478.0" />
+      <point x="0.0" y="39.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billtitles" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billbasic" relationship="REFERENCES">
+      <point x="0.0" y="-72.0" />
+      <point x="668.9490740740741" y="235.0" />
+      <point x="535.5416666666667" y="235.0" />
+      <point x="63.00000000000006" y="105.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billstagetitle" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.btiapp_billbasic" relationship="REFERENCES">
+      <point x="0.0" y="-94.0" />
+      <point x="265.9490740740741" y="235.0" />
+      <point x="409.5416666666667" y="235.0" />
+      <point x="-63.0" y="105.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill_titles" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill" relationship="REFERENCES">
+      <point x="50.25" y="-50.0" />
+      <point x="150.75" y="478.0" />
+      <point x="399.6203703703704" y="478.0" />
+      <point x="399.6203703703704" y="468.0" />
+      <point x="426.6990740740741" y="468.0" />
+      <point x="-38.75" y="61.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.sectiontosection" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.sectionitem" relationship="REFERENCES">
+      <point x="50.0" y="-72.0" />
+      <point x="392.75" y="755.0" />
+      <point x="381.0" y="755.0" />
+      <point x="38.25" y="83.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.billtobill" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill" relationship="REFERENCES">
+      <point x="52.0" y="-116.0" />
+      <point x="595.25" y="478.0" />
+      <point x="504.1990740740741" y="478.0" />
+      <point x="38.75" y="61.0" />
+    </edge>
+    <edge source="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.sectionitem" target="314d6ff7-7898-4d92-8299-eab6d457e83d.TABLE:temp.public.bill" relationship="REFERENCES">
+      <point x="0.0" y="-83.0" />
+      <point x="342.75" y="478.0" />
+      <point x="399.6203703703704" y="478.0" />
+      <point x="399.6203703703704" y="468.0" />
+      <point x="426.6990740740741" y="468.0" />
+      <point x="-38.75" y="61.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.701271186440678" showDependencies="false" x="507.49999999999994" y="461.9999999999999" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Columns</Category>
+    <Category>Comments</Category>
+    <Category>Key columns</Category>
+  </Categories>
+</Diagram>
+

@@ -1,66 +1,22 @@
 #!/usr/bin/env python3
 
+from typing import Optional
+
 from sqlalchemy.sql.schema import UniqueConstraint
-from sqlalchemy.sql.sqltypes import ARRAY, VARCHAR, String
+from sqlalchemy.sql.sqltypes import VARCHAR
 from sqlmodel import Field, SQLModel, Column
-from typing import List, Optional
+
 from .database import engine
 
 
-class Status(SQLModel):
-    success: bool
-    message: str
-
-
-class BillPath(SQLModel):
-    billnumber_version: str = ''
-    filePath: str = ''
-    fileName: str = ''
-
-
-class SectionMeta(SQLModel):
-    billnumber_version: Optional[str] = None
-    section_id: Optional[str] = None
-    label: Optional[str] = None
-    header: Optional[str] = None
-    length: Optional[int] = None
-
-
-class SimilarSection(SectionMeta):
-    score_es: Optional[float] = None
-    score: Optional[float] = None
-    score_to: Optional[float] = None
-
-
-class Section(SectionMeta):
-    similar_sections: List[SimilarSection]
-
-
-# This is the basis for making queries, using billsim.bill_similarity.py getSimilarSectionItem
-class QuerySection(SectionMeta):
-    query_text: str
-
-
-# Result of the similarity search, collecting top similar sections for each section of the bill
-class BillSections(SQLModel):
-    billnumber_version: str
-    length: int
-    sections: List[Section]
-
-
-class SimilarSectionHit(SQLModel):
-    billnumber_version: str    # from _source.id
-    score: float    # from _score
-
-
 class Bill(SQLModel, table=True):
-    __table_args__ = (UniqueConstraint('billnumber',
-                                       'version',
-                                       name='billnumber_version'),)
+    __table_args__ = (
+        UniqueConstraint("billnumber", "version", name="billnumber_version"),
+    )
     id: Optional[int] = Field(default=None, primary_key=True)
     length: Optional[int] = None
     # TODO: when indexing/storing Bill initially, calculate number of sections
-    #sections_num: Optional[int] = None
+    # sections_num: Optional[int] = None
     billnumber: str = Field(index=True)
     version: str = Field(index=True)
 
@@ -69,82 +25,18 @@ class Bill(SQLModel, table=True):
         return "{cls.billnumber}{cls.version}".format(cls=cls)
 
 
-class BillToBillModel(SQLModel):
-    bill_id: Optional[int] = Field(default=None,
-                                   foreign_key="bill.id",
-                                   primary_key=True)
-    bill_to_id: Optional[int] = Field(default=None,
-                                      foreign_key="bill.id",
-                                      primary_key=True)
-    billnumber_version: str = Field(index=True)
-    billnumber_version_to: str = Field(index=True)
-    billnumber: Optional[str] = Field(index=True)
-    version: Optional[str] = Field(index=True)
-    billnumber_to: Optional[str] = Field(index=True)
-    version_to: Optional[str] = Field(index=True)
-    titles: Optional[dict] = None
-    titles_to: Optional[dict] = None
-    title: Optional[str] = None
-    title_to: Optional[str] = None
-    length: Optional[int] = None
-    length_to: Optional[int] = None
-    score_es: Optional[float] = None
-    score: Optional[float] = None
-    score_to: Optional[float] = None
-    reasons: Optional[List[str]] = Field(default=None,
-                                         sa_column=Column(ARRAY(String)))
-    identified_by: Optional[str] = None
-    sections_num: Optional[int] = None
-    sections_match: Optional[int] = None
-    sections: Optional[List[
-        Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
-
-class BillModelDeep(SQLModel):
-    bill_id: Optional[int] = Field(default=None,
-                                   foreign_key="bill.id",
-                                   primary_key=True)
-    billnumber_version: Optional[str] = Field(index=True)
-    billnumber: Optional[str] = Field(index=True)
-    version: Optional[str] = Field(index=True)
-    titles: Optional[dict] = None
-    title: Optional[str] = None
-    length: Optional[int] = None
-    score_es: Optional[float] = None
-    score: Optional[float] = None
-    score_to: Optional[float] = None
-    reasons: Optional[List[str]] = Field(default=None,
-                                         sa_column=Column(ARRAY(String)))
-    identified_by: Optional[str] = None
-    sections_num: Optional[int] = None
-    sections_match: Optional[int] = None
-    sections: Optional[List[
-        Section]] = None    #
-
-    
-class BillToBillModelDeep(SQLModel):
-    bill: BillModelDeep
-    bill_to: BillModelDeep
-    reasons: Optional[List[str]] = Field(default=None,
-                                         sa_column=Column(ARRAY(String)))
-    identified_by: Optional[str] = None
-    sections_num: Optional[int] = None
-    sections_match: Optional[int] = None
-    sections: Optional[List[
-        Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
-
 # Model used to store in db
 class BillToBill(SQLModel, table=True):
-    bill_id: Optional[int] = Field(default=None,
-                                   foreign_key="bill.id",
-                                   primary_key=True)
-    bill_to_id: Optional[int] = Field(default=None,
-                                      foreign_key="bill.id",
-                                      primary_key=True)
+    bill_id: Optional[int] = Field(
+        default=None, foreign_key="bill.id", primary_key=True
+    )
+    bill_to_id: Optional[int] = Field(
+        default=None, foreign_key="bill.id", primary_key=True
+    )
     score_es: Optional[float] = None
     score: Optional[float] = None
     score_to: Optional[float] = None
-    reasonsstring: Optional[str] = Field(default=None,
-                                         sa_column=Column(VARCHAR(100)))
+    reasonsstring: Optional[str] = Field(default=None, sa_column=Column(VARCHAR(100)))
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
@@ -153,9 +45,9 @@ class BillToBill(SQLModel, table=True):
 # NOTE: section_id is the id attribute from the XML. It may not be unique.
 # However, the SQL bill_id + section_id is unique.
 class SectionItem(SQLModel, table=True):
-    __table_args__ = (UniqueConstraint('bill_id',
-                                       'section_id',
-                                       name='billnumber_version_section_id'),)
+    __table_args__ = (
+        UniqueConstraint("bill_id", "section_id", name="billnumber_version_section_id"),
+    )
     id: Optional[int] = Field(default=None, primary_key=True)
     bill_id: Optional[int] = Field(default=None, foreign_key="bill.id")
     section_id: Optional[str] = Field(default=None)
@@ -168,12 +60,13 @@ class SectionToSection(SQLModel, table=True):
     """
     This is a self-join of the SectionItem table.
     """
-    id: Optional[int] = Field(default=None,
-                              foreign_key="sectionitem.id",
-                              primary_key=True)
-    id_to: Optional[int] = Field(default=None,
-                                 foreign_key="sectionitem.id",
-                                 primary_key=True)
+
+    id: Optional[int] = Field(
+        default=None, foreign_key="sectionitem.id", primary_key=True
+    )
+    id_to: Optional[int] = Field(
+        default=None, foreign_key="sectionitem.id", primary_key=True
+    )
     score_es: Optional[float] = None
     score: Optional[float] = None
     score_to: Optional[float] = None
@@ -190,43 +83,13 @@ class Title(SQLModel, table=True):
 class BillTitle(SQLModel, table=True):
     __tablename__ = "bill_titles"
 
-    title_id: Optional[int] = Field(default=None,
-                                   foreign_key="titles.id",
-                                   primary_key=True)
-    bill_id: Optional[int] = Field(default=None,
-                                   foreign_key="bill.id",
-                                   primary_key=True)
+    title_id: Optional[int] = Field(
+        default=None, foreign_key="titles.id", primary_key=True
+    )
+    bill_id: Optional[int] = Field(
+        default=None, foreign_key="bill.id", primary_key=True
+    )
     is_for_whole_bill: bool = Field(default=False)
-
-
-# For display (from billtitles-py)
-class BillTitlePlus(SQLModel):
-
-    id: Optional[int] = Field(default=None, primary_key=True)
-    billnumber: str = Field(index=True)
-    titles: str
-    is_for_whole_bill: bool = Field(default=False)
-
-
-class TitlesItem(SQLModel):
-    whole: List[str]
-    all: List[str]
-
-
-class BillTitleResponse(SQLModel):
-    billnumber: str
-    titles: TitlesItem
-
-
-class TitleBillsResponseItem(SQLModel):
-    id: int
-    title: str
-    billnumbers: List[str]
-
-
-class TitleBillsResponse(SQLModel):
-    titles: List[TitleBillsResponseItem]
-    titles_whole: List[TitleBillsResponseItem]
 
 
 def create_db_and_tables():
