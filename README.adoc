@@ -17,8 +17,14 @@ Or:
 * Clone this repository with `git clone https://github.com/aih/billtitles-py.git`
 * Install Python > 3.7 (preferably with pyenv)
 * Install dependencies, including FastAPI and the uvicorn server (pip install -r requirements.txt)
-* Run the PostgreSQL database server (using docker: `docker run -d -t -i -p 5432:5432 postgres`)
+* Run the PostgreSQL database server (using docker: `docker run  -e POSTGRES_PASSWORD=secrect -e POSTGRES_USER=postgres -d -t -i -p 5432:5432 postgres`)
 * Run the server with `uvicorn billtitles.main:app --reload` (default port `8000`)
+
+To set up pyenv with python 3.9.1 in this case, do the following:
+
+* pyenv install 3.9.1
+* pyenv virtualenv 3.9.1 billtitlesenv
+* pyenv activate billtitlesenv
 
 This will provide an API to query for bills and titles; query similar bills by bill number; (soon) to query similar bills by title; and to create, update, and delete bills and titles.
 
@@ -75,11 +81,19 @@ elasticdump \
 The database container alone can be run with:
 `docker container run -d --rm -p 5432:5432 -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres --name billsim-data docker.io/arihersh/billsim-pgsql:latest`
 
+The database container for postgres if one wants to manually generate all the tables can be done via `docker run  --name billsim-data  -p 5432:5432 -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DB=postgres -d postgres`
+
 Then the database can be accessed at `psql postgresql://postgres:postgres@localhost:5432`
 
 NOTE: The data in the Docker image is not complete, especially for related bills. The title data should be up-to-date as of the commit of this README. However, it is not meant to be used in production as-is. 
 
 NOTE: For **MacOs users**, it may be necessary to set port forwarding in Virtualbox on MacOs to forward to a host port. Set Guest port to 8000 and host port to whatever you want to use on your local machine (I also use 8000). To set the port forwarding, follow the instructions here: https://www.jhipster.tech/tips/020_tip_using_docker_containers_as_localhost_on_mac_and_windows.html
+
+NOTE: If you run it this way, replace the postgres_url with
+`postgresql://postgres:postgres@localhost:5432`
+
+NOTE: The order running then would be to set up the table and then run this,
+`uvicorn billtitles.main:app --reload`
 
 ## See Also
 
