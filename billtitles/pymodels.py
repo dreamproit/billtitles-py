@@ -5,6 +5,7 @@ from sqlalchemy.sql.sqltypes import ARRAY, VARCHAR, String
 from sqlmodel import Field, SQLModel, Column
 from typing import List, Optional
 from .database import engine
+from datetime import datetime
 
 
 class Status(SQLModel):
@@ -68,6 +69,10 @@ class Bill(SQLModel, table=True):
     def getBillnumberversion(cls):
         return "{cls.billnumber}{cls.version}".format(cls=cls)
 
+class CurrencyModel(SQLModel, table=True):
+    currency_id: Optional[int] = Field(default=None, primary_key=True)
+    version: Optional[str] = Field(default=None)
+    date: Optional[datetime] = None
 
 class BillToBillModel(SQLModel):
     bill_id: Optional[int] = Field(default=None,
@@ -98,6 +103,9 @@ class BillToBillModel(SQLModel):
     sections_match: Optional[int] = None
     sections: Optional[List[
         Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
+    currency_id: Optional[int] = Field(default=None, foreign_key="currencymodel.currency_id")
+
+
 
 class BillModelDeep(SQLModel):
     bill_id: Optional[int] = Field(default=None,
@@ -117,10 +125,9 @@ class BillModelDeep(SQLModel):
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
-    sections: Optional[List[
-        Section]] = None    #
+    sections: Optional[List[Section]] = None    #
 
-    
+
 class BillToBillModelDeep(SQLModel):
     bill: BillModelDeep
     bill_to: BillModelDeep
@@ -131,6 +138,7 @@ class BillToBillModelDeep(SQLModel):
     sections_match: Optional[int] = None
     sections: Optional[List[
         Section]] = None    # for BillToBill, the Section.sections has just the highest scoring similar section between the bills
+
 
 # Model used to store in db
 class BillToBill(SQLModel, table=True):
@@ -148,6 +156,7 @@ class BillToBill(SQLModel, table=True):
     identified_by: Optional[str] = None
     sections_num: Optional[int] = None
     sections_match: Optional[int] = None
+    currency_id: Optional[int] = Field(default=None, foreign_key="currencymodel.currency_id")
 
 
 # NOTE: section_id is the id attribute from the XML. It may not be unique.
@@ -191,8 +200,8 @@ class BillTitle(SQLModel, table=True):
     __tablename__ = "bill_titles"
 
     title_id: Optional[int] = Field(default=None,
-                                   foreign_key="titles.id",
-                                   primary_key=True)
+                                    foreign_key="titles.id",
+                                    primary_key=True)
     bill_id: Optional[int] = Field(default=None,
                                    foreign_key="bill.id",
                                    primary_key=True)

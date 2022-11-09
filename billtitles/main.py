@@ -5,7 +5,7 @@ from fastapi.openapi.utils import get_openapi
 from sqlalchemy.orm import Session
 from sqlmodel import SQLModel
 
-from . import crud, models
+from . import crud, pymodels
 from .database import SessionLocal, engine
 from .version import __version__
 
@@ -26,9 +26,9 @@ def get_db():
     finally:
         db.close()
 
-#@app.get("/bills/related", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
-#@app.get("/bills/related/{billnumber}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
-#@app.get("/bills/related/{billnumber}/{version}", response_model=List[models.BillToBillModel or models.BillToBillModelDeep])
+#@app.get("/bills/related", response_model=List[pymodels.BillToBillModel or pypymodels.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}", response_model=List[pymodels.BillToBillModel or pymodels.BillToBillModelDeep])
+#@app.get("/bills/related/{billnumber}/{version}", response_model=List[pymodels.BillToBillModel or pymodels.BillToBillModelDeep])
 @app.get("/bills/related")
 @app.get("/bills/related/{billnumber}")
 @app.get("/bills/related/{billnumber}/{version}")
@@ -41,8 +41,8 @@ def related_bills(billnumber: str,  version: Optional[str] = None, flat: Optiona
         raise HTTPException(status_code=404, detail="Bills related to {billnumber} ({version}) not found".format(billnumber=billnumber, version=version))
     return db_bills
 
-@app.get("/bills/titles/{billnumber}", response_model=models.BillTitleResponse)
-def read_bills(billnumber: str, db: Session = Depends(get_db)) -> models.BillTitleResponse:
+@app.get("/bills/titles/{billnumber}", response_model=pymodels.BillTitleResponse)
+def read_bills(billnumber: str, db: Session = Depends(get_db)) -> pymodels.BillTitleResponse:
     db_bill = crud.get_bill_titles_by_billnumber(db, billnumber=billnumber)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Bill {billnumber} not found".format(billnumber=billnumber))
@@ -56,7 +56,7 @@ def create_related(db: Session = Depends(get_db)):
     return db
 
 @app.get("/titles/{title_id}" )
-def read_title(title_id: int, db: Session = Depends(get_db) ) -> models.TitleBillsResponse:
+def read_title(title_id: int, db: Session = Depends(get_db) ) -> pymodels.TitleBillsResponse:
     db_bill = crud.get_title_by_id(db, title_id=title_id)
     if db_bill is None:
         raise HTTPException(status_code=404, detail="Title with id {title_id} not found".format(title_id=title_id))
